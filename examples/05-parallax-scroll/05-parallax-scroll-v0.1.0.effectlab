@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "05-parallax-scroll",
+  "name": "Profundidad · Parallax por scroll",
+  "createdAt": "2026-11-10T00:00:00Z",
+  "modifiedAt": "2026-11-10T00:00:00Z",
+  "profile": "html",
+  "entry": "index.html",
+  "parameters": [
+    {
+      "id": "depth",
+      "label": "Profundidad",
+      "widget": "slider",
+      "binding": "depth",
+      "source": "code",
+      "value": 20,
+      "defaultValue": 20,
+      "min": 0,
+      "max": 60,
+      "step": 1
+    }
+  ],
+  "dependencies": [
+    "gsap",
+    "gsap/ScrollTrigger"
+  ],
+  "tags": [],
+  "description": "Profundidad · Parallax por scroll",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<script type=\"module\" src=\"main.js\"></script>"
+    },
+    {
+      "path": "main.js",
+      "content": "import{gsap}from'gsap';import{ScrollTrigger}from'gsap/ScrollTrigger';import schema from'./parameters.json';gsap.registerPlugin(ScrollTrigger);\ndocument.body.innerHTML='<main><div class=\"sky\"></div><div class=\"far\"></div><div class=\"near\"></div><article><span>SCROLL EXPLORATION</span><h1>Beyond<br>the surface.</h1><p>Desplazá dentro del efecto ↓</p></article></main><section><h2>Una nueva perspectiva.</h2></section>';\nconst style=document.createElement('style');style.textContent='body{margin:0;background:#09070f;color:#f7f2ff;font-family:system-ui}main{position:relative;height:110vh;overflow:hidden}.sky,.far,.near{position:absolute;inset:-20%;background:radial-gradient(ellipse at 65% 40%,#8b5cf660,transparent 60%)}.far{inset:30% -20% -30%;background:linear-gradient(130deg,#39244f,#09070f);clip-path:polygon(0 55%,25% 5%,50% 50%,75% 10%,100% 60%,100% 100%,0 100%)}.near{inset:55% -20% -10%;background:linear-gradient(80deg,#251136,#5b3982);clip-path:polygon(0 60%,30% 5%,65% 50%,100% 5%,100% 100%,0 100%)}article{position:relative;padding:20vh 9vw}article span{font-size:9px;letter-spacing:.2em;color:#b095ff}h1{font-size:clamp(50px,9vw,115px);line-height:.95;letter-spacing:-.06em}p{font-size:12px;color:#a89bb9}section{height:70vh;padding:10vh 9vw}h2{font-size:30px;font-weight:400}';document.head.append(style);let context;window.lab.register(schema,p=>{context?.revert();if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;context=gsap.context(()=>{for(const [i,selector]of['.sky','.far','.near'].entries())gsap.to(selector,{yPercent:(i+1)*p.depth,ease:'none',scrollTrigger:{trigger:'main',start:'top top',end:'bottom top',scrub:true}});});});window.lab.onDispose(()=>{context?.revert();ScrollTrigger.getAll().forEach(t=>t.kill());});"
+    },
+    {
+      "path": "parameters.json",
+      "content": "[\n  {\n    \"id\": \"depth\",\n    \"label\": \"Profundidad\",\n    \"widget\": \"slider\",\n    \"binding\": \"depth\",\n    \"source\": \"code\",\n    \"value\": 20,\n    \"defaultValue\": 20,\n    \"min\": 0,\n    \"max\": 60,\n    \"step\": 1\n  }\n]"
+    }
+  ]
+}

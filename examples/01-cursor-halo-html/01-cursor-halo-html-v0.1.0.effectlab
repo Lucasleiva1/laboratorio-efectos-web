@@ -1,0 +1,64 @@
+{
+  "formatVersion": 1,
+  "id": "01-cursor-halo-html",
+  "name": "Halo · Luz que te sigue",
+  "createdAt": "2026-11-10T00:00:00Z",
+  "modifiedAt": "2026-11-10T00:00:00Z",
+  "profile": "html",
+  "entry": "index.html",
+  "parameters": [
+    {
+      "id": "size",
+      "label": "Tamaño",
+      "widget": "slider",
+      "value": 180,
+      "defaultValue": 180,
+      "min": 40,
+      "max": 500,
+      "step": 1,
+      "binding": "size",
+      "source": "code"
+    },
+    {
+      "id": "color",
+      "label": "Color",
+      "widget": "color",
+      "value": "#8b5cf6",
+      "defaultValue": "#8b5cf6",
+      "step": 1,
+      "binding": "color",
+      "source": "code"
+    },
+    {
+      "id": "enabled",
+      "label": "Interacción",
+      "widget": "toggle",
+      "value": true,
+      "defaultValue": true,
+      "step": 1,
+      "binding": "enabled",
+      "source": "code"
+    }
+  ],
+  "dependencies": [],
+  "tags": [],
+  "description": "Halo · Luz que te sigue",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<link rel=\"stylesheet\" href=\"style.css\"><div class=\"halo\"></div><main><span>INTERACTIVE EXPLORATION / 001</span><h1>Move.<br>Make waves.</h1><p>Mové el cursor. Hacé clic. Experimentá.</p></main><script type=\"module\" src=\"main.js\"></script>"
+    },
+    {
+      "path": "style.css",
+      "content": "body{margin:0;background:#09070f;color:#f7f2ff;font-family:system-ui;overflow:hidden}main{position:relative;z-index:1;padding:22vh 9vw;pointer-events:none}main>span{font-size:9px;letter-spacing:.22em;color:#b095ff}h1{font-size:clamp(45px,9vw,110px);line-height:.95;letter-spacing:-.06em;margin:30px 0}p{color:#a89bb9;font-size:12px}.halo{position:fixed;width:var(--size,180px);height:var(--size,180px);border-radius:50%;background:var(--color,#8b5cf6);filter:blur(45px);opacity:.65;left:50%;top:50%;transform:translate(-50%,-50%);transition:width .2s,height .2s;pointer-events:none;mix-blend-mode:screen}"
+    },
+    {
+      "path": "main.js",
+      "content": "import schema from './parameters.json';\nconst halo=document.querySelector('.halo');\nconst settings=window.lab.register(schema,p=>{halo.style.width=p.size+'px';halo.style.height=p.size+'px';halo.style.background=p.color;halo.style.display=p.enabled?'block':'none';});\naddEventListener('pointermove',e=>{halo.style.left=e.clientX+'px';halo.style.top=e.clientY+'px';});\naddEventListener('pointerdown',()=>halo.animate([{scale:1},{scale:1.8},{scale:1}],{duration:600}));\nconsole.log('Halo listo. Mové el cursor.');"
+    },
+    {
+      "path": "parameters.json",
+      "content": "[\n  {\n    \"id\": \"size\",\n    \"label\": \"Tamaño\",\n    \"widget\": \"slider\",\n    \"value\": 180,\n    \"defaultValue\": 180,\n    \"min\": 40,\n    \"max\": 500,\n    \"step\": 1,\n    \"binding\": \"size\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"color\",\n    \"label\": \"Color\",\n    \"widget\": \"color\",\n    \"value\": \"#8b5cf6\",\n    \"defaultValue\": \"#8b5cf6\",\n    \"step\": 1,\n    \"binding\": \"color\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"enabled\",\n    \"label\": \"Interacción\",\n    \"widget\": \"toggle\",\n    \"value\": true,\n    \"defaultValue\": true,\n    \"step\": 1,\n    \"binding\": \"enabled\",\n    \"source\": \"code\"\n  }\n]"
+    }
+  ]
+}

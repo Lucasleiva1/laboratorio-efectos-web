@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "id": "12-composition-free",
+  "name": "Sin molde · Código libre en capas",
+  "createdAt": "2026-11-10T00:00:00Z",
+  "modifiedAt": "2026-11-10T00:00:00Z",
+  "profile": "html",
+  "entry": "index.html",
+  "parameters": [],
+  "dependencies": [],
+  "tags": [],
+  "description": "Sin molde · Código libre en capas",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<main><h1>Libre por naturaleza.</h1><p>Un efecto escrito a mano, como una capa más.</p></main><link rel=\"stylesheet\" href=\"style.css\"><script src=\"main.js\" type=\"module\"></script>"
+    },
+    {
+      "path": "style.css",
+      "content": "body{background:#09070f;color:#f7f2ff;font-family:system-ui;margin:0}main{padding:25vh 8vw}h1{font-size:clamp(35px,7vw,90px);letter-spacing:-.06em;background:linear-gradient(100deg,#f7f2ff,#8b5cf6,#87e4c8);background-size:200%;background-clip:text;color:transparent}p{color:#a89bb9}"
+    },
+    {
+      "path": "main.js",
+      "content": "const title=document.querySelector(\"h1\");title.animate([{backgroundPosition:\"0%\"},{backgroundPosition:\"200%\"}],{duration:4000,iterations:Infinity});addEventListener(\"pointermove\",e=>title.style.transform=`translateX(${(e.clientX/innerWidth-.5)*20}px)`);"
+    }
+  ],
+  "composition": {
+    "version": 1,
+    "enabled": true,
+    "layers": [
+      {
+        "id": "free",
+        "kind": "effect",
+        "name": "Código libre",
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "locked": false,
+        "blend": "normal",
+        "mask": "circle",
+        "entry": "index.html"
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "tracks": [],
+    "duration": 8,
+    "loop": true
+  }
+}

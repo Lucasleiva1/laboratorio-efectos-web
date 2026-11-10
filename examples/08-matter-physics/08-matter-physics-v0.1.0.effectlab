@@ -1,0 +1,66 @@
+{
+  "formatVersion": 1,
+  "id": "08-matter-physics",
+  "name": "Gravedad · Física interactiva",
+  "createdAt": "2026-11-10T00:00:00Z",
+  "modifiedAt": "2026-11-10T00:00:00Z",
+  "profile": "html",
+  "entry": "index.html",
+  "parameters": [
+    {
+      "id": "gravity",
+      "label": "Gravedad",
+      "widget": "slider",
+      "binding": "gravity",
+      "source": "code",
+      "value": 1,
+      "defaultValue": 1,
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "id": "bounce",
+      "label": "Rebote",
+      "widget": "slider",
+      "binding": "bounce",
+      "source": "code",
+      "value": 0.8,
+      "defaultValue": 0.8,
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "id": "count",
+      "label": "Cantidad de cuerpos",
+      "widget": "slider",
+      "binding": "count",
+      "source": "code",
+      "value": 30,
+      "defaultValue": 30,
+      "min": 1,
+      "max": 100,
+      "step": 1
+    }
+  ],
+  "dependencies": [
+    "matter-js"
+  ],
+  "tags": [],
+  "description": "Gravedad · Física interactiva",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<script type=\"module\" src=\"main.js\"></script>"
+    },
+    {
+      "path": "main.js",
+      "content": "import Matter from'matter-js';import schema from'./parameters.json';\n(async()=>{await new Promise(resolve=>requestAnimationFrame(resolve));\nconst{Engine,Render,Runner,Bodies,Composite,Mouse,MouseConstraint}=Matter;const engine=Engine.create();const render=Render.create({element:document.body,engine,options:{width:innerWidth,height:innerHeight,wireframes:false,background:'#09070f',pixelRatio:Math.min(devicePixelRatio,1.5)}});document.body.style.margin='0';const floor=Bodies.rectangle(innerWidth/2,innerHeight+20,innerWidth*2,60,{isStatic:true});const walls=[Bodies.rectangle(-20,innerHeight/2,40,innerHeight*2,{isStatic:true}),Bodies.rectangle(innerWidth+20,innerHeight/2,40,innerHeight*2,{isStatic:true}),floor];Composite.add(engine.world,walls);const mouse=Mouse.create(render.canvas);Composite.add(engine.world,MouseConstraint.create(engine,{mouse,constraint:{stiffness:.2,render:{visible:false}}}));let bodies=[];window.lab.register(schema,p=>{engine.gravity.y=p.gravity;while(bodies.length<p.count){const body=Bodies.polygon(40+Math.random()*(innerWidth-80),-Math.random()*500,5,12+Math.random()*18,{restitution:p.bounce,render:{fillStyle:['#8b5cf6','#b095ff','#e0d4ff'][Math.floor(Math.random()*3)]}});bodies.push(body);Composite.add(engine.world,body);}while(bodies.length>p.count)Composite.remove(engine.world,bodies.pop());for(const b of bodies)b.restitution=p.bounce;render.canvas.dataset.bodies=String(bodies.length);});let last=performance.now();function tick(now){if(!window.lab.paused)Engine.update(engine,Math.min(now-last,33));last=now;Render.world(render);raf=requestAnimationFrame(tick);}let raf=requestAnimationFrame(tick);const resize=()=>{Render.setSize(render,Math.max(1,innerWidth),Math.max(1,innerHeight));Matter.Body.setPosition(floor,{x:innerWidth/2,y:innerHeight+20});Matter.Body.scale(floor,Math.max(1,innerWidth*2)/(floor.bounds.max.x-floor.bounds.min.x),1);for(const [i,wall] of walls.slice(0,2).entries()){Matter.Body.setPosition(wall,{x:i===0?-20:innerWidth+20,y:innerHeight/2});Matter.Body.scale(wall,1,Math.max(1,innerHeight*2)/(wall.bounds.max.y-wall.bounds.min.y));}};addEventListener('resize',resize);resize();window.lab.onDispose(()=>{removeEventListener('resize',resize);cancelAnimationFrame(raf);Render.stop(render);Composite.clear(engine.world,false);Engine.clear(engine);Mouse.clearSourceEvents(mouse);});\n})();"
+    },
+    {
+      "path": "parameters.json",
+      "content": "[\n  {\n    \"id\": \"gravity\",\n    \"label\": \"Gravedad\",\n    \"widget\": \"slider\",\n    \"binding\": \"gravity\",\n    \"source\": \"code\",\n    \"value\": 1,\n    \"defaultValue\": 1,\n    \"min\": 0,\n    \"max\": 3,\n    \"step\": 0.1\n  },\n  {\n    \"id\": \"bounce\",\n    \"label\": \"Rebote\",\n    \"widget\": \"slider\",\n    \"binding\": \"bounce\",\n    \"source\": \"code\",\n    \"value\": 0.8,\n    \"defaultValue\": 0.8,\n    \"min\": 0,\n    \"max\": 1,\n    \"step\": 0.05\n  },\n  {\n    \"id\": \"count\",\n    \"label\": \"Cantidad de cuerpos\",\n    \"widget\": \"slider\",\n    \"binding\": \"count\",\n    \"source\": \"code\",\n    \"value\": 30,\n    \"defaultValue\": 30,\n    \"min\": 1,\n    \"max\": 100,\n    \"step\": 1\n  }\n]"
+    }
+  ]
+}

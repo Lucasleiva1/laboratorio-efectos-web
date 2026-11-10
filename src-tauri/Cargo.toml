@@ -1,0 +1,33 @@
+[package]
+name = "effect-lab"
+version = "0.1.0"
+description = "Laboratorio de efectos web premium"
+authors = ["Effect Lab"]
+edition = "2021"
+default-run = "effect-lab"
+
+[lib]
+name = "effect_lab_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["process", "io-util", "sync", "time", "rt-multi-thread", "net", "io-std"] }
+uuid = { version = "1", features = ["v4"] }
+dirs = "6"
+rmcp = { version = "3.9", features = ["server", "client", "transport-io", "transport-child-process", "transport-streamable-http-client-reqwest", "reqwest-native-tls"] }
+url = "2"
+
+[[bin]]
+name = "effect-lab"
+path = "src/main.rs"
+
+[[bin]]
+name = "effectlab-mcp"
+path = "src/bin/effectlab-mcp.rs"

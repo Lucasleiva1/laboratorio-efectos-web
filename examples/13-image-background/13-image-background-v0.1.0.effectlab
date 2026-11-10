@@ -1,0 +1,119 @@
+{
+  "formatVersion": 1,
+  "id": "13-image-background",
+  "name": "Fondo de imagen · Listo para usar",
+  "createdAt": "2026-11-10T00:00:00Z",
+  "modifiedAt": "2026-11-10T00:00:00Z",
+  "profile": "html",
+  "entry": "index.html",
+  "parameters": [
+    {
+      "id": "fit",
+      "binding": "fit",
+      "label": "Encuadre",
+      "value": "cover",
+      "defaultValue": "cover",
+      "widget": "select",
+      "source": "code",
+      "group": "Fondo de imagen",
+      "options": [
+        "cover",
+        "contain"
+      ]
+    },
+    {
+      "id": "positionX",
+      "binding": "positionX",
+      "label": "Posición horizontal",
+      "value": 50,
+      "defaultValue": 50,
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "source": "code",
+      "group": "Fondo de imagen"
+    },
+    {
+      "id": "positionY",
+      "binding": "positionY",
+      "label": "Posición vertical",
+      "value": 50,
+      "defaultValue": 50,
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "source": "code",
+      "group": "Fondo de imagen"
+    },
+    {
+      "id": "dim",
+      "binding": "dim",
+      "label": "Oscurecimiento",
+      "value": 0.25,
+      "defaultValue": 0.25,
+      "widget": "slider",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "source": "code",
+      "group": "Fondo de imagen"
+    },
+    {
+      "id": "blur",
+      "binding": "blur",
+      "label": "Desenfoque",
+      "value": 0,
+      "defaultValue": 0,
+      "widget": "slider",
+      "min": 0,
+      "max": 30,
+      "step": 0.5,
+      "source": "code",
+      "group": "Fondo de imagen"
+    },
+    {
+      "id": "zoom",
+      "binding": "zoom",
+      "label": "Zoom",
+      "value": 1,
+      "defaultValue": 1,
+      "widget": "slider",
+      "min": 1,
+      "max": 1.6,
+      "step": 0.01,
+      "source": "code",
+      "group": "Fondo de imagen"
+    }
+  ],
+  "dependencies": [],
+  "tags": [
+    "fondo",
+    "imagen",
+    "reutilizable"
+  ],
+  "description": "Importá tu imagen y ajustá encuadre, posición, oscurecimiento, desenfoque y zoom. Guardalo como recurso reutilizable.",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<div class=\"image-background\"><img alt=\"\" aria-hidden=\"true\"><div class=\"shade\"></div></div><link rel=\"stylesheet\" href=\"style.css\"><script type=\"module\" src=\"main.js\"></script>"
+    },
+    {
+      "path": "style.css",
+      "content": "html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#09070f}.image-background{position:fixed;inset:0;overflow:hidden;pointer-events:none}.image-background img{display:block;width:100%;height:100%;object-fit:cover;transform-origin:center}.shade{position:absolute;inset:0;pointer-events:none}"
+    },
+    {
+      "path": "main.js",
+      "content": "import image from './assets/background.svg';\nimport schema from './parameters.json';\nconst img=document.querySelector('.image-background img');const shade=document.querySelector('.shade');img.src=image;\nwindow.lab.register(schema,p=>{img.style.objectFit=p.fit;img.style.objectPosition=p.positionX+'% '+p.positionY+'%';img.style.filter='blur('+p.blur+'px)';img.style.transform='scale('+(p.zoom+(p.blur>0?.05:0))+')';shade.style.background='rgba(9,7,15,'+p.dim+')';});\nimg.onerror=()=>console.error('No se pudo cargar la imagen de fondo.');\n"
+    },
+    {
+      "path": "parameters.json",
+      "content": "[\n  {\n    \"id\": \"fit\",\n    \"binding\": \"fit\",\n    \"label\": \"Encuadre\",\n    \"value\": \"cover\",\n    \"defaultValue\": \"cover\",\n    \"widget\": \"select\",\n    \"source\": \"code\",\n    \"group\": \"Fondo de imagen\",\n    \"options\": [\n      \"cover\",\n      \"contain\"\n    ]\n  },\n  {\n    \"id\": \"positionX\",\n    \"binding\": \"positionX\",\n    \"label\": \"Posición horizontal\",\n    \"value\": 50,\n    \"defaultValue\": 50,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 100,\n    \"step\": 1,\n    \"source\": \"code\",\n    \"group\": \"Fondo de imagen\"\n  },\n  {\n    \"id\": \"positionY\",\n    \"binding\": \"positionY\",\n    \"label\": \"Posición vertical\",\n    \"value\": 50,\n    \"defaultValue\": 50,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 100,\n    \"step\": 1,\n    \"source\": \"code\",\n    \"group\": \"Fondo de imagen\"\n  },\n  {\n    \"id\": \"dim\",\n    \"binding\": \"dim\",\n    \"label\": \"Oscurecimiento\",\n    \"value\": 0.25,\n    \"defaultValue\": 0.25,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 1,\n    \"step\": 0.01,\n    \"source\": \"code\",\n    \"group\": \"Fondo de imagen\"\n  },\n  {\n    \"id\": \"blur\",\n    \"binding\": \"blur\",\n    \"label\": \"Desenfoque\",\n    \"value\": 0,\n    \"defaultValue\": 0,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 30,\n    \"step\": 0.5,\n    \"source\": \"code\",\n    \"group\": \"Fondo de imagen\"\n  },\n  {\n    \"id\": \"zoom\",\n    \"binding\": \"zoom\",\n    \"label\": \"Zoom\",\n    \"value\": 1,\n    \"defaultValue\": 1,\n    \"widget\": \"slider\",\n    \"min\": 1,\n    \"max\": 1.6,\n    \"step\": 0.01,\n    \"source\": \"code\",\n    \"group\": \"Fondo de imagen\"\n  }\n]"
+    },
+    {
+      "path": "assets/background.svg",
+      "content": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjgwMCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIHN0b3AtY29sb3I9IiMxNTEwMjEiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjOGI1Y2Y2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDkwNzBmIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjEyMDAiIGhlaWdodD0iODAwIiBmaWxsPSJ1cmwoI2cpIi8+PGNpcmNsZSBjeD0iNzAwIiBjeT0iMzUwIiByPSIyMjAiIGZpbGw9IiNjNGI1ZmQiIG9wYWNpdHk9Ii43Ii8+PHBhdGggZD0iTTAgNzAwTDM1MCAyMDAgODAwIDgwMCAxMDAwIDE1MCAxMjAwIDYwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZjdmMmZmIiBzdHJva2Utd2lkdGg9IjQiIG9wYWNpdHk9Ii41Ii8+PHRleHQgeD0iODAiIHk9IjY2MCIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAwIiBsZXR0ZXItc3BhY2luZz0iLTUiPkZsdWlkIGlkZW50aXRpZXMuPC90ZXh0Pjwvc3ZnPg=="
+    }
+  ]
+}

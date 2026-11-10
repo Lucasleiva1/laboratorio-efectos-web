@@ -1,0 +1,52 @@
+{
+  "formatVersion": 1,
+  "id": "04-three-basic",
+  "name": "Prisma · Geometría en movimiento",
+  "createdAt": "2026-11-10T00:00:00Z",
+  "modifiedAt": "2026-11-10T00:00:00Z",
+  "profile": "html",
+  "entry": "index.html",
+  "parameters": [
+    {
+      "id": "speed",
+      "label": "Velocidad",
+      "widget": "slider",
+      "value": 1,
+      "defaultValue": 1,
+      "min": 0,
+      "max": 5,
+      "step": 0.1,
+      "binding": "speed",
+      "source": "code"
+    },
+    {
+      "id": "color",
+      "label": "Color",
+      "widget": "color",
+      "value": "#8b5cf6",
+      "defaultValue": "#8b5cf6",
+      "step": 1,
+      "binding": "color",
+      "source": "code"
+    }
+  ],
+  "dependencies": [
+    "three"
+  ],
+  "tags": [],
+  "description": "Prisma · Geometría en movimiento",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<script type=\"module\" src=\"main.js\"></script>"
+    },
+    {
+      "path": "main.js",
+      "content": "import * as THREE from 'three';import schema from './parameters.json';\nconst scene=new THREE.Scene();scene.background=new THREE.Color('#09070f');const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,100);camera.position.z=5;const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));document.body.append(renderer.domElement);const geometry=new THREE.IcosahedronGeometry(1.3,1);const material=new THREE.MeshStandardMaterial({color:'#8b5cf6',metalness:.5,roughness:.2,flatShading:true});const mesh=new THREE.Mesh(geometry,material);scene.add(mesh);scene.add(new THREE.AmbientLight(0xb095ff,1));const light=new THREE.PointLight(0xffffff,70);light.position.set(3,3,4);scene.add(light);let params={};window.lab.register(schema,p=>{params=p;material.color.set(p.color);});let mouse=0;addEventListener('pointermove',e=>mouse=(e.clientX/innerWidth-.5));const resize=()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);};addEventListener('resize',resize);renderer.setAnimationLoop(()=>{if(!window.lab.paused){mesh.rotation.y+=.005*params.speed;mesh.rotation.x+=.002;mesh.position.x=mouse*.5;}renderer.render(scene,camera);});window.lab.onDispose(()=>{renderer.setAnimationLoop(null);geometry.dispose();material.dispose();renderer.dispose();removeEventListener('resize',resize);});"
+    },
+    {
+      "path": "parameters.json",
+      "content": "[\n  {\n    \"id\": \"speed\",\n    \"label\": \"Velocidad\",\n    \"widget\": \"slider\",\n    \"value\": 1,\n    \"defaultValue\": 1,\n    \"min\": 0,\n    \"max\": 5,\n    \"step\": 0.1,\n    \"binding\": \"speed\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"color\",\n    \"label\": \"Color\",\n    \"widget\": \"color\",\n    \"value\": \"#8b5cf6\",\n    \"defaultValue\": \"#8b5cf6\",\n    \"step\": 1,\n    \"binding\": \"color\",\n    \"source\": \"code\"\n  }\n]"
+    }
+  ]
+}

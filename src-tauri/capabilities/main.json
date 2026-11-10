@@ -1,0 +1,21 @@
+{
+  "identifier": "main-capability",
+  "description": "Solo la interfaz principal puede abrir y guardar proyectos mediante diálogos nativos.",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "allow-open-project",
+    "allow-save-project",
+    "allow-read-library",
+    "allow-write-library",
+    "allow-write-export",
+    "allow-mcp-status",
+    "allow-mcp-set-enabled",
+    "allow-mcp-reply",
+    "allow-mcp-client-connect",
+    "allow-mcp-client-call",
+    "allow-mcp-client-disconnect"
+  ]
+}

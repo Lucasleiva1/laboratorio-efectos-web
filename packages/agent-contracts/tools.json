@@ -1,0 +1,270 @@
+[
+  {
+    "name": "effectlab_status",
+    "description": "Estado real de Effect Lab, proyecto activo y revisión.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "list_projects",
+    "description": "Lista el proyecto activo y los proyectos guardados en biblioteca.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_project",
+    "description": "Lee el proyecto activo completo. No accede al disco fuera del documento autorizado.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "projectId": { "type": "string" } },
+      "required": ["projectId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "list_project_files",
+    "description": "Lista rutas relativas de fuentes y assets del proyecto.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "projectId": { "type": "string" } },
+      "required": ["projectId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "read_project_file",
+    "description": "Lee un archivo por ruta relativa validada.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "path": { "type": "string" }
+      },
+      "required": ["projectId", "path"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "list_effects",
+    "description": "Lista entrada libre y capas de efecto registradas.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "projectId": { "type": "string" } },
+      "required": ["projectId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "list_effect_parameters",
+    "description": "Esquema, valores y restricciones de parámetros declarados.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "projectId": { "type": "string" } },
+      "required": ["projectId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "list_project_versions",
+    "description": "Revisiones recuperables del proyecto.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "projectId": { "type": "string" } },
+      "required": ["projectId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "create_project",
+    "description": "Propone crear un proyecto. Requiere aceptación en Effect Lab.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "profile": { "enum": ["html", "react"] }
+      },
+      "required": ["name", "profile"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "write_project_file",
+    "description": "Propone crear o editar un archivo. Diff, revisión esperada y aprobación obligatorios.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "expectedRevision": { "type": "integer" },
+        "path": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "required": ["projectId", "expectedRevision", "path", "content"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "apply_file_patch",
+    "description": "Propone sustituir un fragmento exacto y único. Rechaza conflictos.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "expectedRevision": { "type": "integer" },
+        "path": { "type": "string" },
+        "before": { "type": "string" },
+        "after": { "type": "string" }
+      },
+      "required": ["projectId", "expectedRevision", "path", "before", "after"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "create_effect",
+    "description": "Propone un archivo de efecto libre compatible, sin catálogo cerrado.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "expectedRevision": { "type": "integer" },
+        "path": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "required": ["projectId", "expectedRevision", "path", "content"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "remove_effect",
+    "description": "Propone eliminar una capa por ID, conservando el archivo fuente.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "expectedRevision": { "type": "integer" },
+        "layerId": { "type": "string" }
+      },
+      "required": ["projectId", "expectedRevision", "layerId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "create_control",
+    "description": "Propone un esquema de control. El código debe registrar el mismo vínculo real.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "expectedRevision": { "type": "integer" },
+        "control": { "type": "object" }
+      },
+      "required": ["projectId", "expectedRevision", "control"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "update_control",
+    "description": "Propone actualizar definición o valor de un control existente.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "expectedRevision": { "type": "integer" },
+        "controlId": { "type": "string" },
+        "patch": { "type": "object" }
+      },
+      "required": ["projectId", "expectedRevision", "controlId", "patch"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "remove_control",
+    "description": "Propone quitar un control sin borrar código.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "expectedRevision": { "type": "integer" },
+        "controlId": { "type": "string" }
+      },
+      "required": ["projectId", "expectedRevision", "controlId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "set_effect_parameter",
+    "description": "Propone cambiar un parámetro real validando tipo y rango.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "expectedRevision": { "type": "integer" },
+        "parameterId": { "type": "string" },
+        "value": {}
+      },
+      "required": ["projectId", "expectedRevision", "parameterId", "value"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "validate_effect",
+    "description": "Compila las fuentes sin ejecutarlas y devuelve errores reales.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "projectId": { "type": "string" } },
+      "required": ["projectId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "run_preview",
+    "description": "Solicita ejecutar el código en el visor aislado. Requiere permiso en la app.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "projectId": { "type": "string" } },
+      "required": ["projectId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "get_preview_diagnostics",
+    "description": "Obtiene los logs y errores reales disponibles.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "projectId": { "type": "string" } },
+      "required": ["projectId"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "export_effect",
+    "description": "Propone construir una exportación y elegir su destino con diálogo nativo.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "target": { "enum": ["html", "js-module", "react"] }
+      },
+      "required": ["projectId", "target"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "create_checkpoint",
+    "description": "Propone guardar una revisión recuperable del proyecto.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "note": { "type": "string" }
+      },
+      "required": ["projectId", "note"],
+      "additionalProperties": false
+    }
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "name": "effect-lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "tauri": "tauri",
+    "prepare:vendors": "node scripts/prepare-vendors.mjs",
+    "prebuild": "npm run prepare:vendors",
+    "predev": "npm run prepare:vendors"
+  },
+  "dependencies": {
+    "@babel/parser": "^8.1.0",
+    "@monaco-editor/react": "^4.7.0",
+    "@tauri-apps/api": "^2.9.0",
+    "@xyflow/react": "^12.12.1",
+    "esbuild-wasm": "^0.28.2",
+    "fflate": "^0.8.3",
+    "gsap": "^3.15.1",
+    "lucide-react": "^0.468.0",
+    "matter-js": "^0.20.0",
+    "monaco-editor": "^0.57.0",
+    "pixi.js": "^8.22.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.187.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@playwright/test": "^1.65.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "@tauri-apps/cli": "^2.9.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "prettier": "^3.9.10",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.0",
+    "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "dompurify": "3.4.17"
+  }
+}

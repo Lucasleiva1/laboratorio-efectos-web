@@ -1,0 +1,112 @@
+{
+  "formatVersion": 1,
+  "id": "03-particles-pixi-gsap",
+  "name": "Nebula · Partículas luminosas",
+  "createdAt": "2026-11-10T00:00:00Z",
+  "modifiedAt": "2026-11-10T00:00:00Z",
+  "profile": "html",
+  "entry": "index.html",
+  "parameters": [
+    {
+      "id": "count",
+      "label": "Cantidad de partículas",
+      "widget": "slider",
+      "value": 350,
+      "defaultValue": 350,
+      "min": 50,
+      "max": 3000,
+      "step": 10,
+      "binding": "count",
+      "source": "code"
+    },
+    {
+      "id": "speed",
+      "label": "Velocidad",
+      "widget": "slider",
+      "value": 1,
+      "defaultValue": 1,
+      "min": 0.1,
+      "max": 5,
+      "step": 0.1,
+      "binding": "speed",
+      "source": "code"
+    },
+    {
+      "id": "color",
+      "label": "Color",
+      "widget": "color",
+      "value": "#b095ff",
+      "defaultValue": "#b095ff",
+      "step": 1,
+      "binding": "color",
+      "source": "code"
+    },
+    {
+      "id": "glow",
+      "label": "Glow",
+      "widget": "slider",
+      "value": 2,
+      "defaultValue": 2,
+      "min": 0,
+      "max": 8,
+      "step": 0.1,
+      "binding": "glow",
+      "source": "code"
+    },
+    {
+      "id": "mouse",
+      "label": "Reacción al mouse",
+      "widget": "toggle",
+      "value": true,
+      "defaultValue": true,
+      "step": 1,
+      "binding": "mouse",
+      "source": "code"
+    },
+    {
+      "id": "size",
+      "binding": "size",
+      "label": "Tamaño",
+      "widget": "slider",
+      "value": 2.6,
+      "defaultValue": 2.6,
+      "min": 0.5,
+      "max": 10,
+      "step": 0.1,
+      "source": "code"
+    },
+    {
+      "id": "glowEnabled",
+      "binding": "glowEnabled",
+      "label": "Activar glow",
+      "widget": "toggle",
+      "value": true,
+      "defaultValue": true,
+      "source": "code"
+    }
+  ],
+  "dependencies": [
+    "pixi.js",
+    "gsap"
+  ],
+  "tags": [],
+  "description": "Nebula · Partículas luminosas",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<div id=\"scene\"></div><div class=\"caption\"><span>PARTICLES / PIXIJS + GSAP</span><h1>Creative<br>energy.</h1><p>Acercá el cursor. El espacio responde.</p></div><link rel=\"stylesheet\" href=\"style.css\"><script type=\"module\" src=\"main.js\"></script>"
+    },
+    {
+      "path": "style.css",
+      "content": "body{margin:0;background:#09070f;color:#f7f2ff;font-family:system-ui;overflow:hidden}#scene{position:fixed;inset:0}canvas{display:block}.caption{position:relative;pointer-events:none;padding:25vh 8vw}.caption span{font-size:8px;letter-spacing:.2em;color:#b095ff}h1{font-size:clamp(48px,8vw,100px);line-height:.93;letter-spacing:-.06em;font-weight:500;margin:25px 0}p{font-size:11px;color:#a89bb9}"
+    },
+    {
+      "path": "main.js",
+      "content": "import{Application,Graphics}from'pixi.js';import{gsap}from'gsap';import schema from './parameters.json';\n(async()=>{const app=new Application();await app.init({resizeTo:window,backgroundAlpha:0,antialias:true,resolution:Math.min(devicePixelRatio,1.5),preference:'webgl'});document.querySelector('#scene').append(app.canvas);let settings={};const dots=[];const mouse={x:-1000,y:-1000};addEventListener('pointermove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});\nfunction sync(p){settings=p;while(dots.length<p.count){const dot=new Graphics().circle(0,0,1.5+Math.random()*2).fill(0xffffff);dot.x=Math.random()*innerWidth;dot.y=Math.random()*innerHeight;dot.vx=(Math.random()-.5)*.6;dot.vy=(Math.random()-.5)*.6;dot.alpha=.2+Math.random()*.6;app.stage.addChild(dot);dots.push(dot);gsap.to(dot.scale,{x:1.8,y:1.8,duration:1+Math.random()*2,repeat:-1,yoyo:true});}while(dots.length>p.count){const dot=dots.pop();gsap.killTweensOf(dot.scale);dot.destroy();}for(const dot of dots){dot.clear().circle(0,0,p.size).fill(0xffffff);dot.tint=p.color;}app.canvas.style.filter=p.glowEnabled?'drop-shadow(0 0 '+p.glow*3+'px '+p.color+')':'none';app.canvas.dataset.particles=String(dots.length);}\nwindow.lab.register(schema,sync);app.ticker.add(t=>{if(window.lab.paused)return;for(const d of dots){d.x+=d.vx*settings.speed*t.deltaTime;d.y+=d.vy*settings.speed*t.deltaTime;if(settings.mouse){const dx=d.x-mouse.x,dy=d.y-mouse.y,dist=Math.hypot(dx,dy);if(dist<100&&dist>0){d.x+=dx/dist*1.5;d.y+=dy/dist*1.5;}}d.x=(d.x+innerWidth)%innerWidth;d.y=(d.y+innerHeight)%innerHeight;}});addEventListener('lab:pause',e=>gsap.globalTimeline.paused(e.detail));window.lab.onDispose(()=>{gsap.globalTimeline.clear();app.destroy(true,{children:true});});console.log('PixiJS + GSAP listos. '+dots.length+' partículas reales.');})();"
+    },
+    {
+      "path": "parameters.json",
+      "content": "[\n  {\n    \"id\": \"count\",\n    \"label\": \"Cantidad de partículas\",\n    \"widget\": \"slider\",\n    \"value\": 350,\n    \"defaultValue\": 350,\n    \"min\": 50,\n    \"max\": 3000,\n    \"step\": 10,\n    \"binding\": \"count\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"speed\",\n    \"label\": \"Velocidad\",\n    \"widget\": \"slider\",\n    \"value\": 1,\n    \"defaultValue\": 1,\n    \"min\": 0.1,\n    \"max\": 5,\n    \"step\": 0.1,\n    \"binding\": \"speed\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"color\",\n    \"label\": \"Color\",\n    \"widget\": \"color\",\n    \"value\": \"#b095ff\",\n    \"defaultValue\": \"#b095ff\",\n    \"step\": 1,\n    \"binding\": \"color\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"glow\",\n    \"label\": \"Glow\",\n    \"widget\": \"slider\",\n    \"value\": 2,\n    \"defaultValue\": 2,\n    \"min\": 0,\n    \"max\": 8,\n    \"step\": 0.1,\n    \"binding\": \"glow\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"mouse\",\n    \"label\": \"Reacción al mouse\",\n    \"widget\": \"toggle\",\n    \"value\": true,\n    \"defaultValue\": true,\n    \"step\": 1,\n    \"binding\": \"mouse\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"size\",\n    \"binding\": \"size\",\n    \"label\": \"Tamaño\",\n    \"widget\": \"slider\",\n    \"value\": 2.6,\n    \"defaultValue\": 2.6,\n    \"min\": 0.5,\n    \"max\": 10,\n    \"step\": 0.1,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"glowEnabled\",\n    \"binding\": \"glowEnabled\",\n    \"label\": \"Activar glow\",\n    \"widget\": \"toggle\",\n    \"value\": true,\n    \"defaultValue\": true,\n    \"source\": \"code\"\n  }\n]"
+    }
+  ]
+}

@@ -28,11 +28,11 @@ El primer instalador se instalará manualmente. A partir de esa instalación, fu
 
 ## Efecto aprobado
 
-La pincelada de partículas se conserva en un proyecto local independiente. La portada y su imagen se excluyen de esta publicación pública hasta recibir autorización explícita para compartirlas. Instalar Effect Lab no modifica la tienda.
+La portada, su imagen y los proyectos de Prota Code están incluidos como material reutilizable en el repositorio y como assets adicionales del Release, con autorización expresa del propietario. El proyecto aprobado es `projects/prota-code/portada-prota-code-v3.2.0.effectlab`. Instalar Effect Lab no modifica la tienda.
 
 ## Validación y límites
 
-Se ejecutan TypeScript y pruebas de JavaScript sin compilar el producto. La integración Rust, el instalador y la instalación real se validarán durante la compilación autorizada. La aplicación de desarrollo sigue usando su ejecutable anterior; el panel de actualizaciones indica que está disponible en la versión instalada.
+Se ejecutan TypeScript y pruebas de JavaScript sin compilar el producto. La integración Rust, el instalador y la instalación real se validarán durante la compilación autorizada. El watcher de desarrollo recompiló automáticamente el ejecutable de depuración al cambiar la configuración nativa; no se generó un instalador de distribución. El panel indica que la instalación de actualizaciones está disponible en la versión instalada.
 
 La biblioteca local tiene un límite de 32 MB. Los proyectos versionados del repositorio se conservan aunque la biblioteca esté llena.
 

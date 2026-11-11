@@ -1,0 +1,10 @@
+import{readFile,writeFile}from'node:fs/promises';
+const p=JSON.parse(await readFile('projects/prota-code/portada-prota-code-v1.0.0.effectlab','utf8'));
+p.id='prota-image-particles';p.name='Prota Code · Imagen de partículas';p.modifiedAt=new Date().toISOString();p.description='La portada se reconstruye con partículas de la imagen original. El movimiento las dispersa; al quedarse quieto vuelven a su posición.';
+const reference=p.composition.layers.find(l=>l.id==='cover-image');reference.visible=false;reference.name='Referencia original · oculta';
+const image=reference.source.files.find(f=>f.path==='assets/portada.png');
+const slider=(id,label,value,min,max,step)=>({id,binding:id,label,value,defaultValue:value,widget:'slider',min,max,step,source:'code'});
+const parameters=[slider('particleSize','Tamaño de partícula (px)',2,1,5,1),slider('radius','Radio del mouse (px)',125,50,720,5),slider('scatter','Dispersión (px)',100,1,200,1),slider('returnTime','Tiempo para reconstruir (s)',1.8,.5,4,.1)];
+const source={formatVersion:1,id:'image-particle-source',name:'Imagen formada por partículas',createdAt:p.createdAt,modifiedAt:p.modifiedAt,profile:'html',entry:'index.html',parameters,dependencies:[],tags:['partículas','imagen'],description:p.description,files:[{path:'index.html',content:'<canvas aria-label="Imagen de partículas"></canvas><link rel="stylesheet" href="style.css"><script type="module" src="main.js"></script>'},{path:'style.css',content:'html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020408}canvas{display:block;width:100%;height:100%}'},{path:'main.js',content:await readFile('effects/prota-tech/image-particles.js','utf8')},{path:'parameters.json',content:JSON.stringify(parameters,null,2)},image]};
+p.composition.layers.splice(1,0,{...reference,id:'image-particles',name:'Imagen de partículas · dispersión',visible:true,source});
+await writeFile('projects/prota-code/portada-prota-code-v2.0.0.effectlab',JSON.stringify(p,null,2)+'\n');

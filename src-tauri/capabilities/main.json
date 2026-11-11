@@ -6,6 +6,8 @@
   ],
   "permissions": [
     "core:default",
+    "updater:default",
+    "process:allow-restart",
     "allow-open-project",
     "allow-save-project",
     "allow-read-library",

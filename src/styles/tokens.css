@@ -5,13 +5,12 @@
   overflow: auto;
   display: flex;
   justify-content: center;
-  background: repeating-conic-gradient(#151021 0% 25%, #100c18 0% 50%) 50% /
-    16px 16px;
+  background: #141414;
 }
 .preview-stage > .preview-placeholder {
   height: 100%;
   min-width: 100%;
-  background: #0c0912;
+  background: #141414;
 }
 .runtime-state {
   font-size: 8px;

@@ -325,7 +325,7 @@ export default function Preview({ expand }: { expand: () => void }) {
           {document ? <RotateCcw size={12} /> : <Play size={12} />}Ejecutar
         </button>
       </div>
-      <div className="preview-stage">
+      <div className="preview-stage" onPointerLeave={() => send("pointer-input", { x: 0, y: 0, phase: "leave", button: -1 })}>
         {document ? (
           <iframe
             ref={frame}

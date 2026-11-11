@@ -1,4 +1,6 @@
 import { lazy, Suspense, useEffect, useState, useRef } from "react";
+import AppUpdates from "../features/projects/AppUpdates";
+import product from "../../package.json";
 import {
   Activity,
   ArrowDownToLine,
@@ -346,7 +348,7 @@ export default function App() {
             Modo visual
           </button>
         </div>
-        <span className="version">v0.1.0</span>
+        <span className="version">v{product.version}</span>
       </div>
       <main className="workbench">
         {resourcesOpen && (
@@ -712,7 +714,8 @@ export default function App() {
               <FlaskConical />
             </div>
             <h2>Tu laboratorio creativo.</h2>
-            <p>Effect Lab v0.1.0 · Aplicación local para Windows.</p>
+            <p>Effect Lab v{product.version} · Aplicación local para Windows.</p>
+            <AppUpdates />
             <p>
               El código es la fuente de verdad. Sin cuentas ni servicios pagos
               obligatorios.

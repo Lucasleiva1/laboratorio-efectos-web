@@ -142,6 +142,8 @@ pub fn run() {
     tauri::Builder::default()
         .invoke_system(include_str!("main-ipc.js"))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(ProjectState::default())
         .manage(mcp::McpState::default())
         .manage(mcp::McpClients::default())

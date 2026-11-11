@@ -134,6 +134,8 @@ function bridge(config: {
       document.body.dataset.labInspect = String(Boolean(m.data));
     if (m.type === "timeline")
       window.dispatchEvent(new CustomEvent("lab:timeline", { detail: m.data }));
+    if (m.type === "pointer-input" && Number.isFinite(m.data?.x) && Number.isFinite(m.data?.y))
+      window.dispatchEvent(new CustomEvent("lab:pointer", { detail: m.data }));
     if (m.type === "layer-parameter")
       window.dispatchEvent(
         new CustomEvent("lab:layer-parameter", { detail: m.data }),
@@ -188,15 +190,34 @@ function bridge(config: {
     true,
   );
   let pointerSent = 0;
-  window.addEventListener("pointermove", (e) => {
-    if (performance.now() - pointerSent > 30) {
+  const forwardMove = (e: MouseEvent) => {
+    if (performance.now() - pointerSent > 16) {
       pointerSent = performance.now();
       send("pointer", {
         x: e.clientX / innerWidth,
         y: e.clientY / innerHeight,
+        phase: "move",
       });
     }
+  };
+  window.addEventListener("pointermove", forwardMove, true);
+  // WebView2/native mouse input also has a mouse-event path. Listen in capture
+  // phase so project handlers cannot accidentally swallow the input bridge.
+  window.addEventListener("mousemove", forwardMove, true);
+  for (const [event, phase] of [["pointerdown", "down"]] as const)
+    window.addEventListener(event, (e) => send("pointer", {
+      x: e.clientX / innerWidth,
+      y: e.clientY / innerHeight,
+      phase,
+      button: e.button,
+    }));
+  const forwardLeave = (e: MouseEvent) => send("pointer", {
+    x: e.clientX / innerWidth, y: e.clientY / innerHeight,
+    phase: "leave", button: -1,
   });
+  // Leave does not bubble to window: observe the actual document boundary.
+  document.documentElement.addEventListener("pointerleave", forwardLeave);
+  document.documentElement.addEventListener("mouseleave", forwardLeave);
   apply();
   send("ready", null);
   setTimeout(() => send("parameters", [...registered.values()]), 0);
@@ -214,7 +235,7 @@ export function runtimeDocument(
     "default-src 'none'; script-src 'nonce-effectlab-preview' blob:; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src data: blob:; worker-src blob:; frame-src about: blob: data:; base-uri 'none'; form-action 'none'";
   doc.head.prepend(meta);
   const style = doc.createElement("style");
-  style.textContent = "html,body{min-height:100%;margin:0}" + compiled.css;
+  style.textContent = "html,body{min-height:100%;margin:0}html:has(body:empty),html:has(body:not(:has(*:not(script):not(style):not(#root)))){background:#141414}" + compiled.css;
   doc.head.append(style);
   const boot = doc.createElement("script");
   boot.setAttribute("nonce", "effectlab-preview");

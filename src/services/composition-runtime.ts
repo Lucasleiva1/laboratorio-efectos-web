@@ -98,6 +98,14 @@ function compositionPlayer(
   window.addEventListener("pointermove", (e) => {
     pointer = e.clientX / innerWidth;
   });
+  window.addEventListener("lab:pointer", ((event: CustomEvent) => {
+    if (event.detail?.phase !== "leave") return;
+    for (const [id, frame] of frames) {
+      const child = config.children[id];
+      frame.contentWindow?.postMessage({ protocol: 1, session: child.session,
+        projectId: child.projectId, type: "pointer-input", data: event.detail }, "*");
+    }
+  }) as EventListener);
   window.addEventListener("message", (e) => {
     const childEntry = [...frames].find(
       ([, frame]) => frame.contentWindow === e.source,
@@ -110,8 +118,22 @@ function compositionPlayer(
       e.data?.projectId !== child.projectId
     )
       return;
-    if (e.data.type === "pointer" && Number.isFinite(e.data.data?.x))
-      pointer = e.data.data.x;
+    if (e.data.type === "pointer" && Number.isFinite(e.data.data?.x) && Number.isFinite(e.data.data?.y)) {
+      const input = e.data.data;
+      pointer = Math.max(0, Math.min(1, input.x));
+      if (["move", "down", "leave"].includes(input.phase)) {
+        for (const [layerId, frame] of frames) {
+          const target = config.children[layerId];
+          frame.contentWindow?.postMessage({
+            protocol: 1, session: target.session, projectId: target.projectId,
+            type: "pointer-input", data: {
+              x: pointer, y: Math.max(0, Math.min(1, input.y)),
+              phase: input.phase, button: input.button === 0 ? 0 : -1,
+            },
+          }, "*");
+        }
+      }
+    }
     if (e.data.type === "ready") {
       for (const p of child.parameters)
         parameter(

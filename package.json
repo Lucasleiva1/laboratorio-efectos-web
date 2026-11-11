@@ -1,7 +1,7 @@
 {
   "name": "effect-lab",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -17,6 +17,8 @@
     "@babel/parser": "^8.1.0",
     "@monaco-editor/react": "^4.7.0",
     "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/plugin-process": "^2.4.0",
+    "@tauri-apps/plugin-updater": "^2.14.1",
     "@xyflow/react": "^12.12.1",
     "esbuild-wasm": "^0.28.2",
     "fflate": "^0.8.3",

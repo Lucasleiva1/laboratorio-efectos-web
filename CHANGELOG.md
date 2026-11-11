@@ -1,5 +1,14 @@
 # Cambios
 
+## 0.2.0 · 2026-11-11 · Preparada para instalación
+
+- Actualizador firmado con búsqueda manual, progreso e instalación desde Configuración; clave privada local fuera del repositorio.
+- Release en borrador y script de compilación/publicación explícitas; sin builds automáticos.
+- Proyectos de portada, partículas y pincelada persistente por tramos; reconstrucción independiente del cursor y funcionamiento con reducción de movimiento de Windows.
+- Lienzo vacío gris oscuro; versión visible tomada de la configuración del producto.
+- Sin instalador ni prueba nativa del actualizador todavía: compilación pospuesta por el usuario.
+
+
 ## 0.1.1 · 2026-11-10 · Punto estable
 
 - Nombre inicial alfanumérico de proyecto, editable arriba y separado del nombre de los efectos; cargar puntos de partida conserva la identidad del proyecto.

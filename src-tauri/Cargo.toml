@@ -1,6 +1,6 @@
 [package]
 name = "effect-lab"
-version = "0.1.1"
+version = "0.2.0"
 description = "Laboratorio de efectos web premium"
 authors = ["Effect Lab"]
 edition = "2021"
@@ -23,6 +23,8 @@ uuid = { version = "1", features = ["v4"] }
 dirs = "6"
 rmcp = { version = "3.9", features = ["server", "client", "transport-io", "transport-child-process", "transport-streamable-http-client-reqwest", "reqwest-native-tls"] }
 url = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 
 [[bin]]
 name = "effect-lab"

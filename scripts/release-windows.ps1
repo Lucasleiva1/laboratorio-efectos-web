@@ -67,7 +67,8 @@ if ($Publish) {
     & gh release edit $tag --repo $repository --draft=false --latest
     if ($LASTEXITCODE) { throw 'No se pudo publicar el Release.' }
     $response = Invoke-WebRequest "https://github.com/$repository/releases/latest/download/latest.json" -UseBasicParsing
-    $published = $response.Content | ConvertFrom-Json
+    $responseText = if ($response.Content -is [byte[]]) { [Text.Encoding]::UTF8.GetString($response.Content) } else { [string]$response.Content }
+    $published = $responseText | ConvertFrom-Json
     if ($published.version -ne $version -or !$published.platforms.'windows-x86_64-nsis'.signature) { throw 'El endpoint publicado no coincide.' }
 }
 Write-Output "Assets firmados preparados en $assets"

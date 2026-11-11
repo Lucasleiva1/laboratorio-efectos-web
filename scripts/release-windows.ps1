@@ -47,6 +47,8 @@ if (Test-Path -LiteralPath $exe) {
 Copy-Item -LiteralPath ($sourceExe+'.sig') -Destination $sig -Force
 $signature = (Get-Content -LiteralPath $sig -Raw).Trim()
 if (!$signature) { throw 'Firma vacía.' }
+& node scripts/verify-updater.mjs $exe $sig
+if ($LASTEXITCODE) { throw 'La verificación criptográfica del instalador falló.' }
 $url = "https://github.com/$repository/releases/download/$tag/$exeName"
 $entry = [ordered]@{signature=$signature;url=$url}
 $manifest = [ordered]@{version=$version;notes="Effect Lab $version";pub_date=(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ');platforms=[ordered]@{'windows-x86_64-nsis'=$entry;'windows-x86_64'=$entry}}

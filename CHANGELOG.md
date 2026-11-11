@@ -1,5 +1,12 @@
 # Cambios
 
+## 0.2.1 · 2026-11-11 · Instalación y actualización firmada
+
+- Primera distribución Windows NSIS con firma del actualizador, manifiesto estático y publicación en GitHub Releases.
+- Instalación para el usuario actual, desinstalador de Windows y reemplazo de versión desde Configuración → Actualizaciones.
+- Se conservan el identificador del producto y la clave de firma para las siguientes versiones.
+
+
 ## 0.2.0 · 2026-11-11 · Preparada para instalación
 
 - Actualizador firmado con búsqueda manual, progreso e instalación desde Configuración; clave privada local fuera del repositorio.

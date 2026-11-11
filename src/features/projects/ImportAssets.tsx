@@ -1,41 +1,105 @@
-import { ImagePlus } from "lucide-react";
+import { useState } from "react";
+import { ImagePlus, X } from "lucide-react";
 import { useLab } from "../../stores/lab";
+import { insertEffect } from "../../services/insert-effect";
+import { imageEffect, readImage } from "../../services/image-assets";
+import { parseProject } from "../../../packages/core/project";
 export default function ImportAssets() {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  function place(effect: ReturnType<typeof imageEffect>) {
+    useLab.getState().update((p) => {
+      insertEffect(p, effect);
+      parseProject(JSON.stringify(p));
+    });
+    setOpen(false);
+    if (
+      !document.querySelector('iframe[title="Vista previa del efecto"]') &&
+      document.querySelector(".runtime-state")?.textContent !== "Detenido"
+    )
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() =>
+          window.dispatchEvent(new Event("lab:run-preview")),
+        ),
+      );
+  }
   return (
-    <label className="asset-import" title="Importar imágenes locales">
-      <ImagePlus size={13} />
-      Importar imagen
-      <input
-        type="file"
-        accept="image/png,image/jpeg,image/webp,image/svg+xml"
-        multiple
-        onChange={async (e) => {
-          const files = [...(e.target.files ?? [])];
-          for (const file of files) {
-            try {
-              if (file.size > 8 * 1024 * 1024)
-                throw Error("La imagen excede 8 MB");
-              if (!/^image\/(png|jpeg|webp|svg\+xml)$/.test(file.type))
-                throw Error("Formato no admitido");
-              const content = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(String(reader.result));
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-              });
-              const path =
-                "assets/" + file.name.replace(/[^\p{L}\p{N}._-]/gu, "-");
-              if (useLab.getState().project.files.some((f) => f.path === path))
-                throw Error("Ya existe " + path);
-              useLab.getState().update((p) => p.files.push({ path, content }));
-              useLab.getState().log("info", "Imagen importada: " + path);
-            } catch (error) {
-              useLab.getState().log("error", String(error));
-            }
-          }
-          e.target.value = "";
+    <>
+      <button
+        className="asset-import"
+        onClick={() => {
+          setError("");
+          setOpen(true);
         }}
-      />
-    </label>
+      >
+        <ImagePlus size={14} />
+        Importar imagen
+      </button>
+      {open && (
+        <div className="modal-backdrop">
+          <section
+            className="modal image-import-modal"
+            role="dialog"
+            aria-label="Importar imagen"
+          >
+            <button
+              className="modal-close"
+              aria-label="Cerrar importar imagen"
+              onClick={() => setOpen(false)}
+            >
+              <X size={17} />
+            </button>
+            <h2>Importar imagen</h2>
+            <p>
+              Elegí una imagen de tu equipo o empezá con la imagen de prueba.
+            </p>
+            <label className="image-file-choice">
+              <ImagePlus size={20} />
+              <span>{busy ? "Abriendo imagen…" : "Elegir una imagen"}</span>
+              <input
+                aria-label="Elegir una imagen"
+                type="file"
+                accept="image/*,.svg,.avif,.gif,.bmp"
+                disabled={busy}
+                onChange={async (e) => {
+                  const input = e.currentTarget;
+                  const file = input.files?.[0];
+                  if (!file) return;
+                  setBusy(true);
+                  setError("");
+                  try {
+                    place(imageEffect(await readImage(file)));
+                  } catch (error) {
+                    setError(String(error).replace(/^Error: /, ""));
+                  } finally {
+                    setBusy(false);
+                    input.value = "";
+                  }
+                }}
+              />
+            </label>
+            <button
+              className="image-trial-choice"
+              disabled={busy}
+              onClick={() => {
+                try {
+                  place(imageEffect());
+                } catch (error) {
+                  setError(String(error));
+                }
+              }}
+            >
+              Usar la imagen de prueba
+            </button>
+            {error && (
+              <p className="error-message" role="alert">
+                {error}
+              </p>
+            )}
+          </section>
+        </div>
+      )}
+    </>
   );
 }

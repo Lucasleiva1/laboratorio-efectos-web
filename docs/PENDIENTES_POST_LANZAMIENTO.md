@@ -7,7 +7,7 @@ La aplicación actual es una base de desarrollo probada por flujos concretos. No
 - Claridad de nodos y timeline: tipos comprensibles, conexiones/destinos explícitos y orientación del flujo. La interfaz actual del compositor es inicial y requiere revisión de uso.
 - Distribución de producción e instalador, pospuestos expresamente por el usuario; empaquetado final de MCP y validación sin Vite.
 - Más widgets, edición de curvas, keyframes de color/vector y mejor diseño de pistas; actualmente las pistas son numéricas.
-- Optimizar recompilación de composiciones; editar parámetros de recursos independientes recompone la preview.
+- Los parámetros de recursos y el orden de capas ya se actualizan en vivo. Agregar/eliminar elementos o cambiar transformaciones estructurales todavía recompone la preview; optimizar esos cambios manteniendo sus recursos.
 - Gestión de colecciones de gran tamaño: índice en SQLite, paginación y deduplicación de assets; hoy se usa JSON atómico con límite explícito de 32 MB y primeros 100 resultados visibles.
 - Cliente MCP saliente con gestor persistente, OAuth y stdio autorizado; actualmente se implementa Streamable HTTP temporal.
 - Scroll exportado acoplado al sitio anfitrión y dependencias compartidas entre superficies, con contrato explícito.

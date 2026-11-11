@@ -99,6 +99,8 @@ export function parseProject(text: string): LabProject {
         !["none", "circle", "rectangle"].includes(l.mask)
       )
         throw Error("Capa inválida");
+      if (l.transparent !== undefined && typeof l.transparent !== "boolean")
+        throw Error("Transparencia de capa inválida");
       if (
         ![l.x, l.y, l.scale, l.rotation, l.opacity].every(Number.isFinite) ||
         l.scale <= 0 ||
@@ -137,8 +139,14 @@ export function parseProject(text: string): LabProject {
   }
   return p;
 }
+export function createProjectName() {
+  return (
+    "Proyecto-" +
+    crypto.randomUUID().replaceAll("-", "").slice(0, 8).toUpperCase()
+  );
+}
 export function createProject(
-  name = "Sin título",
+  name = createProjectName(),
   profile: LabProject["profile"] = "html",
 ): LabProject {
   const now = new Date().toISOString();
@@ -164,8 +172,7 @@ export function createProject(
             },
             {
               path: "style.css",
-              content:
-                "html, body { margin: 0; min-height: 100%; }\n",
+              content: "html, body { margin: 0; min-height: 100%; }\n",
             },
             {
               path: "main.js",

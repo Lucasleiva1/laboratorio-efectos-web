@@ -7,6 +7,245 @@
   flex: 1;
   min-height: 0;
 }
+.save-spinner {
+  animation: save-spin 0.8s linear infinite;
+}
+.project-name-input {
+  width: clamp(180px, 25vw, 390px);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 8px;
+  background: transparent;
+  border-color: #38264f;
+  color: var(--text);
+}
+@keyframes save-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.save-confirmation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 5px 8px;
+  background: #163126;
+  color: white;
+  border-radius: 5px;
+}
+.save-status {
+  max-width: 48%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.save-error {
+  padding: 10px 16px;
+  background: #471a24;
+  color: white;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.element-palette {
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.explorer-section > summary {
+  padding: 12px 15px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text);
+  background: #100c18;
+}
+.examples-section[open] {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.examples-section > summary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.explorer-section:not([open]) {
+  flex: none;
+}
+.element-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 8px;
+}
+.element-list button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 8px 14px;
+  font-size: 11px;
+  justify-content: flex-start;
+}
+.element-list button:hover {
+  background: #21162e;
+}
+.component-inspector {
+  padding: 14px 12px;
+}
+.inspector-component {
+  margin: 4px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #100c18;
+}
+.inspector-component > summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 8px;
+  cursor: pointer;
+  list-style: none;
+  background: #21162e;
+  font-size: 12px;
+}
+.inspector-component > summary::-webkit-details-marker {
+  display: none;
+}
+.inspector-component > summary > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.inspector-component > summary > small {
+  font-size: 9px;
+  white-space: nowrap;
+}
+.inspector-component:not([open]) .component-chevron {
+  transform: rotate(-90deg);
+}
+.component-body {
+  padding: 0 12px 10px;
+}
+.component-body .control {
+  padding: 12px 0;
+}
+.component-section {
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+}
+.component-section > summary {
+  padding: 12px 0;
+  font-size: 11px;
+  cursor: pointer;
+}
+.component-visible {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 12px 0;
+  font-size: 11px;
+}
+.component-visible input {
+  width: auto;
+}
+.advanced-controls > summary {
+  font-size: 10px;
+}
+.layer-order-help {
+  font-size: 10px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+.layer-drag-ghost {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  padding: 9px 14px;
+  background: #21162e;
+  color: white;
+  border: 1px solid #c4b5fd;
+  border-radius: 7px;
+  font-size: 12px;
+  pointer-events: none;
+}
+.inspector-component {
+  position: relative;
+  transition: opacity 0.15s;
+}
+.inspector-component.dragging {
+  opacity: 0.4;
+}
+.inspector-component.drop-before {
+  box-shadow: 0 -3px 0 #c4b5fd;
+}
+.inspector-component.drop-after {
+  box-shadow: 0 3px 0 #c4b5fd;
+}
+.inspector-component > summary {
+  gap: 4px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.inspector-component.dragging > summary {
+  cursor: grabbing;
+}
+.component-inspector:has(.dragging) .component-body {
+  display: none;
+}
+.layer-pointer-ghost {
+  position: fixed;
+  z-index: 9999;
+  padding: 8px 12px;
+  border: 1px solid #c4b5fd;
+  border-radius: 6px;
+  background: #21162e;
+  color: white;
+  font-size: 12px;
+  pointer-events: none;
+  box-shadow: 0 6px 18px #0008;
+}
+.inspector-component > summary button {
+  padding: 3px;
+  flex-shrink: 0;
+}
+.inspector-component > summary .layer-drag-handle {
+  cursor: grab;
+}
+.inspector-component > summary .layer-drag-handle:active {
+  cursor: grabbing;
+}
+.inspector-component > summary > .lucide-box {
+  display: none;
+}
+.image-file-choice {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 20px;
+  margin: 20px 0 12px;
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.image-file-choice input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.image-trial-choice {
+  width: 100%;
+  border: 1px solid var(--border);
+  padding: 14px;
+}
+.image-import-modal .error-message {
+  color: #fca5a5;
+  font-size: 12px;
+}
 .examples-list > * {
   flex-shrink: 0;
 }

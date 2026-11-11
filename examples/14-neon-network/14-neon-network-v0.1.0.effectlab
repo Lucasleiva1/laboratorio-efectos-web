@@ -1,0 +1,308 @@
+{
+  "formatVersion": 1,
+  "id": "14-neon-network",
+  "name": "Red tecnológica · Estela y ondas",
+  "createdAt": "2026-11-10T00:00:00Z",
+  "modifiedAt": "2026-11-10T00:00:00Z",
+  "profile": "html",
+  "entry": "index.html",
+  "parameters": [
+    {
+      "id": "color",
+      "binding": "color",
+      "label": "Color de la red",
+      "value": "#38ff94",
+      "defaultValue": "#38ff94",
+      "widget": "color",
+      "source": "code"
+    },
+    {
+      "id": "spacing",
+      "binding": "spacing",
+      "label": "Separación de la malla",
+      "value": 54,
+      "defaultValue": 54,
+      "widget": "slider",
+      "min": 36,
+      "max": 96,
+      "step": 1,
+      "source": "code"
+    },
+    {
+      "id": "radius",
+      "binding": "radius",
+      "label": "Ancho de la estela",
+      "value": 150,
+      "defaultValue": 150,
+      "widget": "slider",
+      "min": 50,
+      "max": 320,
+      "step": 5,
+      "source": "code"
+    },
+    {
+      "id": "persistence",
+      "binding": "persistence",
+      "label": "Duración de la estela (s)",
+      "value": 1.8,
+      "defaultValue": 1.8,
+      "widget": "slider",
+      "min": 0.3,
+      "max": 5,
+      "step": 0.1,
+      "source": "code"
+    },
+    {
+      "id": "intensity",
+      "binding": "intensity",
+      "label": "Intensidad de la estela",
+      "value": 0.9,
+      "defaultValue": 0.9,
+      "widget": "slider",
+      "min": 0.1,
+      "max": 1.8,
+      "step": 0.05,
+      "source": "code"
+    },
+    {
+      "id": "glow",
+      "binding": "glow",
+      "label": "Glow de líneas y puntos",
+      "value": 8,
+      "defaultValue": 8,
+      "widget": "slider",
+      "min": 0,
+      "max": 25,
+      "step": 1,
+      "source": "code"
+    },
+    {
+      "id": "lineWidth",
+      "binding": "lineWidth",
+      "label": "Grosor de las líneas",
+      "value": 0.7,
+      "defaultValue": 0.7,
+      "widget": "slider",
+      "min": 0.3,
+      "max": 2,
+      "step": 0.1,
+      "source": "code"
+    },
+    {
+      "id": "base",
+      "binding": "base",
+      "label": "Red visible en reposo",
+      "value": 0.035,
+      "defaultValue": 0.035,
+      "widget": "slider",
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005,
+      "source": "code"
+    },
+    {
+      "id": "motion",
+      "binding": "motion",
+      "label": "Movimiento de la malla",
+      "value": 0.8,
+      "defaultValue": 0.8,
+      "widget": "slider",
+      "min": 0,
+      "max": 3,
+      "step": 0.1,
+      "source": "code"
+    },
+    {
+      "id": "pull",
+      "binding": "pull",
+      "label": "Atracción al cursor",
+      "value": 0.6,
+      "defaultValue": 0.6,
+      "widget": "slider",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "source": "code"
+    },
+    {
+      "id": "ripples",
+      "binding": "ripples",
+      "label": "Ondas al hacer clic",
+      "value": true,
+      "defaultValue": true,
+      "widget": "toggle",
+      "source": "code"
+    },
+    {
+      "id": "waveSpeed",
+      "binding": "waveSpeed",
+      "label": "Velocidad de expansión",
+      "value": 270,
+      "defaultValue": 270,
+      "widget": "slider",
+      "min": 80,
+      "max": 600,
+      "step": 10,
+      "source": "code"
+    },
+    {
+      "id": "waveForce",
+      "binding": "waveForce",
+      "label": "Deformación de la onda",
+      "value": 24,
+      "defaultValue": 24,
+      "widget": "slider",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "source": "code"
+    }
+  ],
+  "dependencies": [],
+  "tags": [
+    "verde",
+    "tecnológico",
+    "cursor",
+    "red"
+  ],
+  "description": "Red tecnológica verde con estela del cursor y ondas expansivas al hacer clic. Glow integrado en la red.",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<canvas id=\"network\" aria-label=\"Red tecnológica interactiva\"></canvas><link rel=\"stylesheet\" href=\"style.css\"><script type=\"module\" src=\"main.js\"></script>"
+    },
+    {
+      "path": "style.css",
+      "content": "html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent}canvas{display:block;width:100%;height:100%;touch-action:none}"
+    },
+    {
+      "path": "main.js",
+      "content": "import schema from \"./parameters.json\";\n\nconst canvas = document.querySelector(\"#network\");\nconst ctx = canvas.getContext(\"2d\");\nlet settings = {},\n  width = 1,\n  height = 1,\n  nodes = [],\n  columns = 0,\n  rows = 0;\nlet trail = [],\n  ripples = [],\n  clock = 0,\n  previous = performance.now(),\n  raf;\nlet cursor = { x: -1000, y: -1000, inside: false };\n\nfunction lattice() {\n  const spacing = Math.max(settings.spacing, Math.sqrt(width * height / 450));\n  columns = Math.ceil(width / spacing) + 2;\n  rows = Math.ceil(height / spacing) + 2;\n  nodes = [];\n  for (let y = 0; y < rows; y++)\n    for (let x = 0; x < columns; x++) {\n      const seed = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;\n      const jitter = (seed - Math.floor(seed) - 0.5) * spacing * 0.3;\n      nodes.push({\n        bx: x * spacing - 20 + jitter,\n        by: y * spacing - 20 - jitter,\n        x: 0,\n        y: 0,\n        heat: 0,\n        phase: x * 0.8 + y * 1.3,\n      });\n    }\n  canvas.dataset.nodes = String(nodes.length);\n}\nfunction resize() {\n  width = innerWidth;\n  height = innerHeight;\n  const dpr = 1;\n  canvas.width = Math.round(width * dpr);\n  canvas.height = Math.round(height * dpr);\n  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);\n  if (settings.spacing) lattice();\n}\nwindow.lab.register(schema, (value) => {\n  const rebuild = settings.spacing !== value.spacing;\n  settings = value;\n  if (rebuild) lattice();\n  if (!settings.ripples) ripples = [];\n  canvas.dataset.color = settings.color;\n});\nresize();\n\nfunction stamp(x, y) {\n  trail.push({ x, y, born: clock });\n  if (trail.length > 32) trail.shift();\n}\nfunction move(event) {\n  const x = event.clientX,\n    y = event.clientY;\n  const last = trail.at(-1);\n  if (\n    !last ||\n    Math.hypot(x - last.x, y - last.y) > 6 ||\n    clock - last.born > 0.06\n  )\n    stamp(x, y);\n  cursor = { x, y, inside: true };\n}\nfunction click(event) {\n  if (event.button !== 0) return;\n  stamp(event.clientX, event.clientY);\n  if (settings.ripples) {\n    ripples.push({ x: event.clientX, y: event.clientY, born: clock });\n    if (ripples.length > 3) ripples.shift();\n  }\n}\nfunction leave() {\n  cursor.inside = false;\n}\ncanvas.addEventListener(\"pointermove\", move);\ncanvas.addEventListener(\"pointerdown\", click);\ncanvas.addEventListener(\"pointerleave\", leave);\naddEventListener(\"resize\", resize);\n\nlet paths, hotPath, dots;\nfunction edge(a,b){\n const heat=Math.max(a.heat,b.heat);const bin=heat<.06?0:Math.min(4,Math.ceil(heat*4));\n const path=paths[bin];path.moveTo(a.x,a.y);path.lineTo(b.x,b.y);\n if(heat>.2){hotPath.moveTo(a.x,a.y);hotPath.lineTo(b.x,b.y);}\n}\nlet frames=0, measuredAt=performance.now(), cost=0;\nfunction tick(now) {\n  const started=performance.now();\n  paths=Array.from({length:5},()=>new Path2D());hotPath=new Path2D();dots=new Path2D();\n  const delta = Math.min(0.05, (now - previous) / 1000);\n  previous = now;\n  if (!window.lab.paused) clock += delta;\n  ctx.clearRect(0, 0, width, height);\n  trail = trail.filter((point) => clock - point.born < settings.persistence);\n  const lifetime = Math.hypot(width, height) / settings.waveSpeed + 1;\n  ripples = ripples.filter((wave) => clock - wave.born < lifetime);\n  ctx.strokeStyle = settings.color;\n  ctx.fillStyle = settings.color;\n  ctx.shadowColor = settings.color;\n  ctx.globalCompositeOperation = \"source-over\";\n  for (const node of nodes) {\n    let heat = 0;\n    let dx = Math.sin(clock * settings.motion + node.phase) * 2.5;\n    let dy = Math.cos(clock * settings.motion * 0.8 + node.phase) * 2.5;\n    for (const point of trail) {\n      const x = node.bx - point.x,\n        y = node.by - point.y;\n      const distance2 = x * x + y * y;\n      if (distance2 < settings.radius * settings.radius) {\n        const age = 1 - (clock - point.born) / settings.persistence;\n        heat = Math.max(\n          heat,\n          (1 - distance2 / (settings.radius * settings.radius)) * age * age,\n        );\n      }\n    }\n    if (cursor.inside) {\n      const x = cursor.x - node.bx,\n        y = cursor.y - node.by;\n      const distance = Math.hypot(x, y);\n      if (distance < settings.radius) {\n        const pull = (1 - distance / settings.radius) * settings.pull;\n        dx += x * pull * 0.08;\n        dy += y * pull * 0.08;\n      }\n    }\n    for (const wave of ripples) {\n      const x = node.bx - wave.x,\n        y = node.by - wave.y;\n      const distance = Math.hypot(x, y),\n        age = clock - wave.born;\n      const band = distance - age * settings.waveSpeed;\n      const envelope =\n        Math.exp((-band * band) / (2 * 42 * 42)) * Math.exp(-age * 0.6);\n      const displacement =\n        Math.sin(band * 0.075) * settings.waveForce * envelope;\n      if (distance > 0.1) {\n        dx += (x / distance) * displacement;\n        dy += (y / distance) * displacement;\n      }\n      heat = Math.max(heat, envelope * 0.95);\n    }\n    node.x = node.bx + dx;\n    node.y = node.by + dy;\n    node.heat = heat;\n  }\n  for (let y = 0; y < rows; y++)\n    for (let x = 0; x < columns; x++) {\n      const index = y * columns + x,\n        node = nodes[index];\n      if (x + 1 < columns) edge(node, nodes[index + 1]);\n      if (y + 1 < rows) edge(node, nodes[index + columns]);\n      if (x + 1 < columns && y + 1 < rows && (x + y) % 2 === 0)\n        edge(node, nodes[index + columns + 1]);\n      if (node.heat > .12) {dots.moveTo(node.x+2,node.y);dots.arc(node.x,node.y,1+node.heat*1.5,0,Math.PI*2);}\n    }\n  for(const wave of ripples){\n    const age=clock-wave.born;\n    for(let ring=0;ring<3;ring++){\n      const radius=age*settings.waveSpeed-ring*18;if(radius<=0)continue;\n      const bin=Math.max(1,Math.ceil(Math.exp(-age*1.1)*2));\n      paths[bin].moveTo(wave.x+radius,wave.y);paths[bin].arc(wave.x,wave.y,radius,0,Math.PI*2);\n    }\n  }\n  // Glow is batched into two wide, low-opacity strokes, without shadowBlur.\n  if(settings.glow>0){\n    ctx.globalAlpha=.035;ctx.lineWidth=settings.lineWidth+settings.glow*.9;ctx.stroke(hotPath);\n    ctx.globalAlpha=.09;ctx.lineWidth=settings.lineWidth+settings.glow*.35;ctx.stroke(hotPath);\n  }\n  for(let i=0;i<paths.length;i++){\n    ctx.globalAlpha=i===0?settings.base:Math.min(1,settings.base+i*.25*settings.intensity);\n    ctx.lineWidth=settings.lineWidth+i*.15;ctx.stroke(paths[i]);\n  }\n  ctx.globalAlpha=.9;ctx.fill(dots);\n  ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';\n  cost+=performance.now()-started;frames++;\n  if(now-measuredAt>=1000){\n    canvas.dataset.fps=(frames*1000/(now-measuredAt)).toFixed(1);\n    canvas.dataset.drawMs=(cost/frames).toFixed(2);frames=0;cost=0;measuredAt=now;\n  }\n  canvas.dataset.trail=String(trail.length);canvas.dataset.ripples=String(ripples.length);\n  raf = requestAnimationFrame(tick);\n}\nraf = requestAnimationFrame(tick);\nwindow.lab.onDispose(() => {\n  cancelAnimationFrame(raf);\n  removeEventListener(\"resize\", resize);\n  canvas.removeEventListener(\"pointermove\", move);\n  canvas.removeEventListener(\"pointerdown\", click);\n  canvas.removeEventListener(\"pointerleave\", leave);\n});\n"
+    },
+    {
+      "path": "parameters.json",
+      "content": "[\n  {\n    \"id\": \"color\",\n    \"binding\": \"color\",\n    \"label\": \"Color de la red\",\n    \"value\": \"#38ff94\",\n    \"defaultValue\": \"#38ff94\",\n    \"widget\": \"color\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"spacing\",\n    \"binding\": \"spacing\",\n    \"label\": \"Separación de la malla\",\n    \"value\": 54,\n    \"defaultValue\": 54,\n    \"widget\": \"slider\",\n    \"min\": 36,\n    \"max\": 96,\n    \"step\": 1,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"radius\",\n    \"binding\": \"radius\",\n    \"label\": \"Ancho de la estela\",\n    \"value\": 150,\n    \"defaultValue\": 150,\n    \"widget\": \"slider\",\n    \"min\": 50,\n    \"max\": 320,\n    \"step\": 5,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"persistence\",\n    \"binding\": \"persistence\",\n    \"label\": \"Duración de la estela (s)\",\n    \"value\": 1.8,\n    \"defaultValue\": 1.8,\n    \"widget\": \"slider\",\n    \"min\": 0.3,\n    \"max\": 5,\n    \"step\": 0.1,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"intensity\",\n    \"binding\": \"intensity\",\n    \"label\": \"Intensidad de la estela\",\n    \"value\": 0.9,\n    \"defaultValue\": 0.9,\n    \"widget\": \"slider\",\n    \"min\": 0.1,\n    \"max\": 1.8,\n    \"step\": 0.05,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"glow\",\n    \"binding\": \"glow\",\n    \"label\": \"Glow de líneas y puntos\",\n    \"value\": 8,\n    \"defaultValue\": 8,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 25,\n    \"step\": 1,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"lineWidth\",\n    \"binding\": \"lineWidth\",\n    \"label\": \"Grosor de las líneas\",\n    \"value\": 0.7,\n    \"defaultValue\": 0.7,\n    \"widget\": \"slider\",\n    \"min\": 0.3,\n    \"max\": 2,\n    \"step\": 0.1,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"base\",\n    \"binding\": \"base\",\n    \"label\": \"Red visible en reposo\",\n    \"value\": 0.035,\n    \"defaultValue\": 0.035,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 0.2,\n    \"step\": 0.005,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"motion\",\n    \"binding\": \"motion\",\n    \"label\": \"Movimiento de la malla\",\n    \"value\": 0.8,\n    \"defaultValue\": 0.8,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 3,\n    \"step\": 0.1,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"pull\",\n    \"binding\": \"pull\",\n    \"label\": \"Atracción al cursor\",\n    \"value\": 0.6,\n    \"defaultValue\": 0.6,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 2,\n    \"step\": 0.1,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"ripples\",\n    \"binding\": \"ripples\",\n    \"label\": \"Ondas al hacer clic\",\n    \"value\": true,\n    \"defaultValue\": true,\n    \"widget\": \"toggle\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"waveSpeed\",\n    \"binding\": \"waveSpeed\",\n    \"label\": \"Velocidad de expansión\",\n    \"value\": 270,\n    \"defaultValue\": 270,\n    \"widget\": \"slider\",\n    \"min\": 80,\n    \"max\": 600,\n    \"step\": 10,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"waveForce\",\n    \"binding\": \"waveForce\",\n    \"label\": \"Deformación de la onda\",\n    \"value\": 24,\n    \"defaultValue\": 24,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 60,\n    \"step\": 1,\n    \"source\": \"code\"\n  }\n]"
+    }
+  ],
+  "composition": {
+    "version": 1,
+    "enabled": true,
+    "layers": [
+      {
+        "id": "network-grid-layer",
+        "name": "Retícula de fondo",
+        "kind": "effect",
+        "entry": "index.html",
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "locked": false,
+        "blend": "normal",
+        "mask": "none",
+        "source": {
+          "formatVersion": 1,
+          "id": "network-grid",
+          "name": "Retícula de fondo",
+          "createdAt": "2026-11-10T00:00:00Z",
+          "modifiedAt": "2026-11-10T00:00:00Z",
+          "profile": "html",
+          "entry": "index.html",
+          "parameters": [
+            {
+              "id": "background",
+              "binding": "background",
+              "label": "Color de fondo",
+              "value": "#050e0c",
+              "defaultValue": "#050e0c",
+              "widget": "color",
+              "source": "code"
+            },
+            {
+              "id": "gridColor",
+              "binding": "gridColor",
+              "label": "Color de la retícula",
+              "value": "#17734e",
+              "defaultValue": "#17734e",
+              "widget": "color",
+              "source": "code"
+            },
+            {
+              "id": "gridOpacity",
+              "binding": "gridOpacity",
+              "label": "Visibilidad de la retícula",
+              "value": 0.14,
+              "defaultValue": 0.14,
+              "widget": "slider",
+              "min": 0,
+              "max": 0.5,
+              "step": 0.01,
+              "source": "code"
+            },
+            {
+              "id": "gridSize",
+              "binding": "gridSize",
+              "label": "Separación de la retícula",
+              "value": 64,
+              "defaultValue": 64,
+              "widget": "slider",
+              "min": 24,
+              "max": 140,
+              "step": 4,
+              "source": "code"
+            }
+          ],
+          "dependencies": [],
+          "tags": [
+            "verde",
+            "tecnológico",
+            "cursor",
+            "red"
+          ],
+          "description": "Red tecnológica verde con estela del cursor y ondas expansivas al hacer clic. Glow integrado en la red.",
+          "files": [
+            {
+              "path": "index.html",
+              "content": "<canvas id=\"network\" aria-label=\"Red tecnológica interactiva\"></canvas><link rel=\"stylesheet\" href=\"style.css\"><script type=\"module\" src=\"main.js\"></script>"
+            },
+            {
+              "path": "style.css",
+              "content": "html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#050e0c}canvas{display:block;width:100%;height:100%;touch-action:none}"
+            },
+            {
+              "path": "main.js",
+              "content": "import schema from \"./parameters.json\";\nconst canvas = document.querySelector(\"canvas\"),\n  ctx = canvas.getContext(\"2d\");\nlet p = {},\n  w = 1,\n  h = 1;\nfunction draw() {\n  w = innerWidth;\n  h = innerHeight;\n  const dpr = Math.min(devicePixelRatio || 1, 1.5);\n  canvas.width = w * dpr;\n  canvas.height = h * dpr;\n  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);\n  ctx.strokeStyle = p.gridColor;\n  ctx.fillStyle = p.gridColor;\n  ctx.lineWidth = 0.6;\n  ctx.globalAlpha = p.gridOpacity;\n  for (let x = 0; x < w; x += p.gridSize) {\n    ctx.beginPath();\n    ctx.moveTo(x, 0);\n    ctx.lineTo(x, h);\n    ctx.stroke();\n    for (let y = 0; y < h; y += p.gridSize) ctx.fillRect(x - 1, y - 1, 2, 2);\n  }\n  for (let y = 0; y < h; y += p.gridSize) {\n    ctx.beginPath();\n    ctx.moveTo(0, y);\n    ctx.lineTo(w, y);\n    ctx.stroke();\n  }\n}\nwindow.lab.register(schema, (value) => {\n  p = value;\n  document.body.style.background = p.background;\n  draw();\n});\naddEventListener(\"resize\", draw);\nwindow.lab.onDispose(() => removeEventListener(\"resize\", draw));\n"
+            },
+            {
+              "path": "parameters.json",
+              "content": "[\n  {\n    \"id\": \"background\",\n    \"binding\": \"background\",\n    \"label\": \"Color de fondo\",\n    \"value\": \"#050e0c\",\n    \"defaultValue\": \"#050e0c\",\n    \"widget\": \"color\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"gridColor\",\n    \"binding\": \"gridColor\",\n    \"label\": \"Color de la retícula\",\n    \"value\": \"#17734e\",\n    \"defaultValue\": \"#17734e\",\n    \"widget\": \"color\",\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"gridOpacity\",\n    \"binding\": \"gridOpacity\",\n    \"label\": \"Visibilidad de la retícula\",\n    \"value\": 0.14,\n    \"defaultValue\": 0.14,\n    \"widget\": \"slider\",\n    \"min\": 0,\n    \"max\": 0.5,\n    \"step\": 0.01,\n    \"source\": \"code\"\n  },\n  {\n    \"id\": \"gridSize\",\n    \"binding\": \"gridSize\",\n    \"label\": \"Separación de la retícula\",\n    \"value\": 64,\n    \"defaultValue\": 64,\n    \"widget\": \"slider\",\n    \"min\": 24,\n    \"max\": 140,\n    \"step\": 4,\n    \"source\": \"code\"\n  }\n]"
+            }
+          ]
+        }
+      },
+      {
+        "id": "network-mesh-layer",
+        "name": "Red reactiva · cursor y ondas",
+        "kind": "effect",
+        "entry": "index.html",
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "locked": false,
+        "blend": "normal",
+        "mask": "none",
+        "transparent": true
+      }
+    ],
+    "nodes": [],
+    "edges": [],
+    "tracks": [],
+    "duration": 8,
+    "loop": true
+  }
+}

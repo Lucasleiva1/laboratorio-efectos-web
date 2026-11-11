@@ -35,7 +35,7 @@ interface LabState {
 }
 const createLabStore = () =>
   create<LabState>((set, get) => ({
-    project: createProject("Mi primer experimento"),
+    project: createProject(),
     active: "index.html",
     dirty: false,
     revision: 0,

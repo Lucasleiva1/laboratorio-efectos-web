@@ -6,6 +6,12 @@ import {
 } from "../packages/core/project";
 import { validateValue } from "../packages/parameter-schema";
 describe("Proyectos", () => {
+  it("empieza con nombre alfanumérico propio y único", () => {
+    const a = createProject();
+    const b = createProject();
+    expect(a.name).toMatch(/^Proyecto-[A-Z0-9]{8}$/);
+    expect(a.name).not.toBe(b.name);
+  });
   it("conserva código y metadatos al serializar", () => {
     const p = createProject("Prueba");
     p.files[1].content = "body{color:red}";

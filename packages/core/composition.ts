@@ -7,6 +7,7 @@ export interface Layer {
   text?: string;
   asset?: string;
   source?: LabProject;
+  transparent?: boolean;
   parentId?: string;
   x: number;
   y: number;

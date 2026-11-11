@@ -10,6 +10,14 @@ pub mod mcp;
 const MAX_BYTES: usize = 32 * 1024 * 1024;
 #[derive(Default)]
 struct ProjectState(Mutex<Option<(String, PathBuf)>>);
+fn project_file_name(name: &str) -> String {
+    let filtered: String = name.chars()
+        .filter(|c| !c.is_control() && !r#"<>:"/\|?*"#.contains(*c))
+        .take(100).collect();
+    let trimmed = filtered.trim().trim_matches('.').trim();
+    let base = if trimmed.is_empty() { "Proyecto" } else { trimmed };
+    format!("{base}-v0.1.0.effectlab")
+}
 fn checked_json(content: &str) -> Result<serde_json::Value, String> {
     if content.len() > MAX_BYTES {
         return Err("El proyecto excede 32 MB".into());
@@ -66,17 +74,16 @@ async fn save_project(
         .to_string();
     let current = state.0.lock().map_err(|e| e.to_string())?.clone();
     let path = if save_as || current.as_ref().is_none_or(|(saved_id, _)| saved_id != &id) {
-        let safe_name: String = name
-            .chars()
-            .filter(|c| c.is_alphanumeric() || *c == '-' || *c == '_')
-            .take(80)
-            .collect();
-        let selected = app
+        let suggested_name = project_file_name(&name);
+        let mut dialog = app
             .dialog()
             .file()
             .add_filter("Effect Lab", &["effectlab"])
-            .set_file_name(format!("{safe_name}-v0.1.0.effectlab"))
-            .blocking_save_file();
+            .set_file_name(suggested_name);
+        if let Some(directory) = current.as_ref().and_then(|(_, path)| path.parent()) {
+            dialog = dialog.set_directory(directory);
+        }
+        let selected = dialog.blocking_save_file();
         let Some(file) = selected else {
             return Ok(false);
         };
@@ -158,6 +165,12 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn project_names_keep_spaces_and_make_safe_versioned_files() {
+        assert_eq!(project_file_name("Mi proyecto"), "Mi proyecto-v0.1.0.effectlab");
+        assert_eq!(project_file_name("A/B:C"), "ABC-v0.1.0.effectlab");
+        assert_eq!(project_file_name("  ...  "), "Proyecto-v0.1.0.effectlab");
+    }
     #[test]
     fn persistence_keeps_previous_revision() {
         let dir = std::env::temp_dir().join(format!("effectlab-test-{}", uuid::Uuid::new_v4()));

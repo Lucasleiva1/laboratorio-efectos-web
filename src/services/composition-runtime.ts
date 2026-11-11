@@ -17,7 +17,7 @@ function compositionPlayer(
         session: string;
         projectId: string;
         inherit: boolean;
-        parameters: { id: string; binding: string }[];
+        parameters: Parameter[];
       }
     >;
   },
@@ -112,11 +112,13 @@ function compositionPlayer(
       return;
     if (e.data.type === "pointer" && Number.isFinite(e.data.data?.x))
       pointer = e.data.data.x;
-    if (e.data.type === "ready" && child.inherit) {
-      for (const [key, value] of Object.entries(lab.params)) {
-        const p = child.parameters.find((p) => p.binding === key);
-        if (p) parameter(id, p.id, value);
-      }
+    if (e.data.type === "ready") {
+      for (const p of child.parameters)
+        parameter(
+          id,
+          p.id,
+          child.inherit ? (lab.params[p.binding] ?? p.value) : p.value,
+        );
       evaluate();
     }
     if (e.data.type === "error")
@@ -131,6 +133,52 @@ function compositionPlayer(
       }
     }
   });
+  window.addEventListener("lab:layer-parameter", ((event: CustomEvent) => {
+    const data = event.detail;
+    const child = config.children[data?.layerId];
+    if (!child || child.inherit) return;
+    const p = child.parameters.find((p) => p.id === data.id);
+    if (!p || typeof data.value !== typeof p.defaultValue) return;
+    if (
+      typeof data.value === "number" &&
+      (!Number.isFinite(data.value) ||
+        data.value < (p.min ?? -Infinity) ||
+        data.value > (p.max ?? Infinity))
+    )
+      return;
+    if (p.options && !p.options.includes(String(data.value))) return;
+    p.value = data.value;
+    parameter(data.layerId, p.id, data.value);
+  }) as EventListener);
+  window.addEventListener("lab:layer-order", ((event: CustomEvent) => {
+    const ids = event.detail;
+    if (
+      !Array.isArray(ids) ||
+      ids.length !== c.layers.length ||
+      new Set(ids).size !== ids.length ||
+      ids.some((id) => !c.layers.some((l) => l.id === id))
+    )
+      return;
+    ids.forEach((id, index) => {
+      const el = document.getElementById("layer-" + id);
+      if (el) el.style.zIndex = String(index);
+    });
+  }) as EventListener);
+  window.addEventListener("lab:pause", ((event: CustomEvent) => {
+    for (const [id, frame] of frames) {
+      const child = config.children[id];
+      frame.contentWindow?.postMessage(
+        {
+          protocol: 1,
+          session: child.session,
+          projectId: child.projectId,
+          type: "pause",
+          data: Boolean(event.detail),
+        },
+        "*",
+      );
+    }
+  }) as EventListener);
   window.addEventListener("lab:timeline", ((event: CustomEvent) => {
     const d = event.detail;
     if (typeof d.time === "number")
@@ -200,6 +248,8 @@ export async function prepareProject(project: LabProject): Promise<Compiled> {
           ? "react"
           : "html";
       const built = await compileProject(source);
+      if (layer.transparent)
+        built.css += "\nhtml,body{background:transparent!important}";
       built.dependencies.forEach((d) => dependencies.add(d));
       const session = "layer-" + layer.id;
       const frame = doc.createElement("iframe");
@@ -238,6 +288,7 @@ export async function prepareProject(project: LabProject): Promise<Compiled> {
     const parent = layer.parentId
       ? doc.getElementById("layer-" + layer.parentId)
       : null;
+    el.style.zIndex = String(c.layers.indexOf(layer));
     (parent ?? doc.body).append(el);
   }
   for (const layer of c.layers) {
@@ -247,7 +298,16 @@ export async function prepareProject(project: LabProject): Promise<Compiled> {
       if (el && parent) parent.append(el);
     }
   }
-  const js = `(${compositionPlayer.toString()})(${JSON.stringify({ composition: c, parameters: project.parameters, children })},${interpolate.toString()},${JSON.stringify(order)});`;
+  const runtimeComposition = {
+    ...c,
+    layers: c.layers.map(({ source: _source, ...layer }) => layer),
+  };
+  const config = JSON.stringify({
+    composition: runtimeComposition,
+    parameters: project.parameters,
+    children,
+  }).replaceAll("<", "\\u003c");
+  const js = `(${compositionPlayer.toString()})(${config},${interpolate.toString()},${JSON.stringify(order)});`;
   const html = doc.documentElement.outerHTML;
   return {
     js,

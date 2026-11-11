@@ -187,89 +187,94 @@ export default function CompositionPanel() {
                 </button>
               ))}
             </div>
-            {c.layers.map((l, i) => (
-              <div
-                key={l.id}
-                className={"layer-row " + (selected === l.id ? "selected" : "")}
-              >
-                <button
-                  onClick={() =>
-                    update((p) => {
-                      p.composition!.layers[i].visible = !l.visible;
-                    })
-                  }
-                  title="Visibilidad"
-                >
-                  {l.visible ? <Eye size={12} /> : <EyeOff size={12} />}
-                </button>
-                <button onClick={() => setSelected(l.id)}>
-                  {l.parentId ? "↳ " : ""}
-                  {l.name}
-                </button>
-                <button
-                  title="Bloquear"
-                  onClick={() =>
-                    update((p) => {
-                      p.composition!.layers[i].locked = !l.locked;
-                    })
+            {[...c.layers].reverse().map((l) => {
+              const i = c.layers.findIndex((item) => item.id === l.id);
+              return (
+                <div
+                  key={l.id}
+                  className={
+                    "layer-row " + (selected === l.id ? "selected" : "")
                   }
                 >
-                  {l.locked ? <Lock size={11} /> : <Unlock size={11} />}
-                </button>
-                <button
-                  title="Subir capa"
-                  onClick={() =>
-                    update((p) => {
-                      if (i > 0)
-                        [
-                          p.composition!.layers[i - 1],
-                          p.composition!.layers[i],
-                        ] = [
-                          p.composition!.layers[i],
-                          p.composition!.layers[i - 1],
-                        ];
-                    })
-                  }
-                >
-                  <ChevronUp size={12} />
-                </button>
-                <button
-                  title="Duplicar capa"
-                  onClick={() =>
-                    update((p) => {
-                      p.composition!.layers.splice(i + 1, 0, {
-                        ...structuredClone(l),
-                        id: crypto.randomUUID(),
-                        name: l.name + " copia",
-                      });
-                    })
-                  }
-                >
-                  <Copy size={11} />
-                </button>
-                <button
-                  title="Eliminar capa"
-                  onClick={async () => {
-                    if (
-                      await confirmAction(
-                        "¿Eliminar la instancia de capa sin borrar su código?",
-                      )
-                    )
+                  <button
+                    onClick={() =>
                       update((p) => {
-                        p.composition!.layers = p
-                          .composition!.layers.filter((x) => x.id !== l.id)
-                          .map((x) =>
-                            x.parentId === l.id
-                              ? { ...x, parentId: undefined }
-                              : x,
-                          );
-                      });
-                  }}
-                >
-                  <Trash2 size={11} />
-                </button>
-              </div>
-            ))}
+                        p.composition!.layers[i].visible = !l.visible;
+                      })
+                    }
+                    title="Visibilidad"
+                  >
+                    {l.visible ? <Eye size={12} /> : <EyeOff size={12} />}
+                  </button>
+                  <button onClick={() => setSelected(l.id)}>
+                    {l.parentId ? "↳ " : ""}
+                    {l.name}
+                  </button>
+                  <button
+                    title="Bloquear"
+                    onClick={() =>
+                      update((p) => {
+                        p.composition!.layers[i].locked = !l.locked;
+                      })
+                    }
+                  >
+                    {l.locked ? <Lock size={11} /> : <Unlock size={11} />}
+                  </button>
+                  <button
+                    title="Subir capa"
+                    onClick={() =>
+                      update((p) => {
+                        if (i < c.layers.length - 1)
+                          [
+                            p.composition!.layers[i + 1],
+                            p.composition!.layers[i],
+                          ] = [
+                            p.composition!.layers[i],
+                            p.composition!.layers[i + 1],
+                          ];
+                      })
+                    }
+                  >
+                    <ChevronUp size={12} />
+                  </button>
+                  <button
+                    title="Duplicar capa"
+                    onClick={() =>
+                      update((p) => {
+                        p.composition!.layers.splice(i + 1, 0, {
+                          ...structuredClone(l),
+                          id: crypto.randomUUID(),
+                          name: l.name + " copia",
+                        });
+                      })
+                    }
+                  >
+                    <Copy size={11} />
+                  </button>
+                  <button
+                    title="Eliminar capa"
+                    onClick={async () => {
+                      if (
+                        await confirmAction(
+                          "¿Eliminar la instancia de capa sin borrar su código?",
+                        )
+                      )
+                        update((p) => {
+                          p.composition!.layers = p
+                            .composition!.layers.filter((x) => x.id !== l.id)
+                            .map((x) =>
+                              x.parentId === l.id
+                                ? { ...x, parentId: undefined }
+                                : x,
+                            );
+                        });
+                    }}
+                  >
+                    <Trash2 size={11} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
           <div className="layer-inspector">
             {layer ? (

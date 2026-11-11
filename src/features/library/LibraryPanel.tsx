@@ -29,10 +29,7 @@ import {
   type Revision,
 } from "../../services/library";
 import { askText, confirmAction } from "../../components/Dialogs";
-import {
-  createComposition,
-  createLayer,
-} from "../../../packages/core/composition";
+import { insertEffect } from "../../services/insert-effect";
 import { buildExport, writeExport } from "../../services/exporter";
 const DiffEditor = lazy(() =>
   import("@monaco-editor/react").then((m) => ({ default: m.DiffEditor })),
@@ -275,15 +272,17 @@ export default function LibraryPanel({ close }: { close: () => void }) {
                       <button
                         title="Insertar como capa independiente"
                         onClick={() => {
-                          lab.update((p) => {
-                            p.composition ??= createComposition();
-                            p.composition.layers.push({
-                              ...createLayer("effect", item.name),
-                              source: structuredClone(item.project),
-                              entry: item.project.entry,
-                            });
-                          });
-                          close();
+                          try {
+                            lab.update((p) =>
+                              insertEffect(p, {
+                                ...item.project,
+                                name: item.name,
+                              }),
+                            );
+                            close();
+                          } catch (error) {
+                            lab.log("error", String(error));
+                          }
                         }}
                       >
                         Insertar

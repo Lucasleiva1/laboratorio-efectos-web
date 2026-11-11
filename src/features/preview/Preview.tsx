@@ -35,9 +35,31 @@ export default function Preview({ expand }: { expand: () => void }) {
   // Store updates clone the project. Compare content so live controls do not
   // restart the iframe just because files/composition acquired new identities.
   const sourceKey = JSON.stringify([
-    project.entry, project.profile, project.files, project.dependencies,
+    project.entry,
+    project.profile,
+    project.files,
+    project.dependencies,
   ]);
-  const compositionKey = JSON.stringify(project.composition ?? null);
+  const compositionKey = JSON.stringify(
+    project.composition
+      ? {
+          ...project.composition,
+          layers: [...project.composition.layers]
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map((layer) => ({
+              ...layer,
+              source: layer.source
+                ? {
+                    ...layer.source,
+                    parameters: layer.source.parameters.map(
+                      ({ value: _value, ...definition }) => definition,
+                    ),
+                  }
+                : undefined,
+            })),
+        }
+      : null,
+  );
   const previousInputs = useRef({ id: project.id, sourceKey, compositionKey });
   function send(type: string, data: unknown) {
     frame.current?.contentWindow?.postMessage(
@@ -88,7 +110,20 @@ export default function Preview({ expand }: { expand: () => void }) {
       )
         return;
       const { type, data } = e.data;
-      if (type === "ready") setStatus("Ejecutando");
+      if (type === "ready") {
+        setStatus("Ejecutando");
+        send(
+          "layer-order",
+          useLab.getState().project.composition?.layers.map((l) => l.id) ?? [],
+        );
+        for (const layer of useLab.getState().project.composition?.layers ?? [])
+          for (const p of layer.source?.parameters ?? [])
+            send("layer-parameter", {
+              layerId: layer.id,
+              id: p.id,
+              value: p.value,
+            });
+      }
       if (type === "log" && typeof data?.message === "string")
         log(
           ["warn", "error"].includes(data.level) ? data.level : "info",
@@ -132,9 +167,11 @@ export default function Preview({ expand }: { expand: () => void }) {
           if (!old.some((p) => p.binding === live.binding))
             merged.push({ ...live, bindingStatus: "linked" });
         if (JSON.stringify(old) !== JSON.stringify(merged))
-          useLab.getState().update((p) => {
-            p.parameters = merged;
-          });
+          useLab.setState((s) => ({
+            project: { ...s.project, parameters: merged },
+            dirty: true,
+            revision: s.revision + 1,
+          }));
       }
       if (type === "selection")
         log("info", "Elemento: " + JSON.stringify(data));
@@ -150,9 +187,12 @@ export default function Preview({ expand }: { expand: () => void }) {
     const compositionChanged = previous.compositionKey !== compositionKey;
     if ((auto && sourceChanged) || compositionChanged) {
       const token = sequence.current;
-      const timer = setTimeout(() => {
-        if (token === sequence.current) void run();
-      }, auto && sourceChanged ? 700 : 400);
+      const timer = setTimeout(
+        () => {
+          if (token === sequence.current) void run();
+        },
+        auto && sourceChanged ? 700 : 400,
+      );
       return () => clearTimeout(timer);
     }
   }, [project.id, sourceKey, compositionKey, auto, running]);
@@ -166,6 +206,16 @@ export default function Preview({ expand }: { expand: () => void }) {
     for (const p of project.parameters)
       send("parameter", { id: p.id, binding: p.binding, value: p.value });
   }, [project.parameters]);
+  useEffect(() => {
+    send("layer-order", project.composition?.layers.map((l) => l.id) ?? []);
+    for (const layer of project.composition?.layers ?? [])
+      for (const p of layer.source?.parameters ?? [])
+        send("layer-parameter", {
+          layerId: layer.id,
+          id: p.id,
+          value: p.value,
+        });
+  }, [project.composition]);
   useEffect(() => {
     sequence.current++;
     session.current = "";

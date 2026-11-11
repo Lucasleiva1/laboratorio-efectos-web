@@ -134,6 +134,14 @@ function bridge(config: {
       document.body.dataset.labInspect = String(Boolean(m.data));
     if (m.type === "timeline")
       window.dispatchEvent(new CustomEvent("lab:timeline", { detail: m.data }));
+    if (m.type === "layer-parameter")
+      window.dispatchEvent(
+        new CustomEvent("lab:layer-parameter", { detail: m.data }),
+      );
+    if (m.type === "layer-order")
+      window.dispatchEvent(
+        new CustomEvent("lab:layer-order", { detail: m.data }),
+      );
   });
   document.addEventListener(
     "click",
@@ -214,7 +222,7 @@ export function runtimeDocument(
   doc.head.append(boot);
   const script = doc.createElement("script");
   script.setAttribute("nonce", "effectlab-preview");
-  script.textContent = compiled.js;
+  script.textContent = compiled.js.replace(/<\/script/gi, "<\\/script");
   doc.body.append(script);
   return "<!doctype html>" + doc.documentElement.outerHTML;
 }

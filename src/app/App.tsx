@@ -1,9 +1,10 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, useRef } from "react";
 import {
   Activity,
   ArrowDownToLine,
   Box,
-  Braces,
+  Check,
+  LoaderCircle,
   ChevronRight,
   Code2,
   FileCode2,
@@ -22,9 +23,18 @@ import {
   Undo2,
   X,
 } from "lucide-react";
-import { createProject, safePath } from "../../packages/core/project";
+import {
+  createProject,
+  createProjectName,
+  safePath,
+} from "../../packages/core/project";
+import {
+  createComposition,
+  createLayer,
+} from "../../packages/core/composition";
 import { useLab } from "../stores/lab";
-import { openProject, saveProject } from "../services/persistence";
+import { openProject } from "../services/persistence";
+import { saveWithFeedback, type SaveFeedback } from "../services/save-feedback";
 import Inspector from "../features/properties/Inspector";
 import { askText, confirmAction, DialogHost } from "../components/Dialogs";
 import Preview from "../features/preview/Preview";
@@ -35,7 +45,7 @@ const CompositionPanel = lazy(
 const LibraryPanel = lazy(() => import("../features/library/LibraryPanel"));
 import { examples } from "../features/projects/examples";
 import ImportAssets from "../features/projects/ImportAssets";
-import BackgroundAsset from "../features/projects/BackgroundAsset";
+import ElementPalette from "../features/projects/ElementPalette";
 import Recovery from "../features/projects/Recovery";
 import { McpBridgeHost } from "../features/ai/McpPanel";
 import ReviewDialog from "../features/ai/ReviewDialog";
@@ -44,6 +54,22 @@ const McpPanel = lazy(() => import("../features/ai/McpPanel"));
 const CodeEditor = lazy(() => import("../features/code-editor/CodeEditor"));
 export default function App() {
   const lab = useLab();
+  const [saveFeedback, setSaveFeedback] = useState<SaveFeedback | null>(null);
+  const saveInFlight = useRef(false);
+  const saving = saveFeedback?.phase === "saving";
+  const currentSave =
+    saveFeedback?.projectId === lab.project.id ? saveFeedback : null;
+  const saveMessage = saving
+    ? "Guardando proyecto…"
+    : currentSave?.phase === "error"
+      ? "No se pudo guardar: " + currentSave.error
+      : currentSave?.phase === "cancelled"
+        ? "Guardado cancelado"
+        : lab.dirty
+          ? "Cambios sin guardar"
+          : currentSave?.phase === "saved"
+            ? "Guardado · " + currentSave.time
+            : "Sin cambios pendientes";
   const [resourcesOpen, setResourcesOpen] = useState(true);
   const [layout, setLayout] = useState("split");
   const [settings, setSettings] = useState(false);
@@ -69,14 +95,17 @@ export default function App() {
   );
   const file = lab.project.files.find((f) => f.path === lab.active);
   async function save(as = false) {
+    if (saveInFlight.current) return;
+    saveInFlight.current = true;
+    const trimmedName = useLab.getState().project.name.trim();
+    if (!trimmedName || trimmedName !== useLab.getState().project.name)
+      useLab.getState().update((p) => {
+        p.name = trimmedName || createProjectName();
+      });
     try {
-      const p = useLab.getState().project;
-      if (await saveProject(p, as)) {
-        if (useLab.getState().project === p) lab.saved();
-        lab.log("info", "Proyecto guardado.");
-      }
-    } catch (e) {
-      lab.log("error", String(e));
+      await saveWithFeedback(as, setSaveFeedback);
+    } finally {
+      saveInFlight.current = false;
     }
   }
   async function open() {
@@ -101,7 +130,7 @@ export default function App() {
       !(await confirmAction("Hay cambios sin guardar. ¿Crear otro proyecto?"))
     )
       return;
-    const name = await askText("Nombre del experimento", "Nuevo experimento");
+    const name = await askText("Nombre del proyecto", createProjectName());
     if (name) {
       const profile = await askText("Tipo de proyecto: html o react", "html");
       if (profile === "html" || profile === "react")
@@ -144,7 +173,7 @@ export default function App() {
   }
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         void save(e.shiftKey);
       }
@@ -200,10 +229,27 @@ export default function App() {
           <FolderOpen size={15} />
           Abrir
         </button>
-        <button onClick={() => save()}>
-          <Save size={15} />
-          Guardar<span className="keycap">Ctrl S</span>
+        <button onClick={() => save()} disabled={saving} aria-busy={saving}>
+          {saving ? (
+            <LoaderCircle size={15} className="save-spinner" />
+          ) : (
+            <Save size={15} />
+          )}
+          {saving ? "Guardando…" : "Guardar"}
         </button>
+        <button
+          onClick={() => save(true)}
+          disabled={saving}
+          aria-label="Guardar como"
+        >
+          Guardar como…
+        </button>
+        {currentSave?.phase === "saved" && !lab.dirty && (
+          <span className="save-confirmation">
+            <Check size={13} />
+            Guardado
+          </span>
+        )}
         <button
           className="workspace-shortcut"
           title="Explorador"
@@ -258,9 +304,30 @@ export default function App() {
       <div className="workspace-bar">
         <div className="breadcrumb">
           <FlaskConical size={14} />
-          <span>Experimentos</span>
+          <span>Proyecto</span>
           <ChevronRight size={12} />
-          <strong>{lab.project.name}</strong>
+          <input
+            className="project-name-input"
+            aria-label="Nombre del proyecto"
+            title="Podés cambiar el nombre del proyecto aquí"
+            value={lab.project.name}
+            maxLength={120}
+            onChange={(e) =>
+              lab.update((p) => {
+                p.name = e.target.value;
+              })
+            }
+            onBlur={() => {
+              const name = useLab.getState().project.name.trim();
+              if (name !== useLab.getState().project.name || !name)
+                lab.update((p) => {
+                  p.name = name || createProjectName();
+                });
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.currentTarget.blur();
+            }}
+          />
           {lab.dirty && <i className="dirty-dot" title="Cambios sin guardar" />}
         </div>
         <div className="mode-tabs">
@@ -295,27 +362,44 @@ export default function App() {
                 </button>
               </div>
               <ImportAssets />
-              <BackgroundAsset />
-              <div className="examples-list">
-                <span className="mini-label">PUNTOS DE PARTIDA</span>
-                {examples.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={async () => {
-                      if (
-                        !lab.dirty ||
-                        (await confirmAction(
-                          "¿Abrir este ejemplo y descartar los cambios sin guardar?",
-                        ))
-                      )
-                        lab.load(structuredClone(p));
-                    }}
-                  >
-                    <FileCode2 size={12} />
-                    {p.name}
-                  </button>
-                ))}
-              </div>
+              <ElementPalette />
+              <details className="explorer-section examples-section" open>
+                <summary>Puntos de partida</summary>
+                <div className="examples-list">
+                  {examples.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={async () => {
+                        if (
+                          !lab.dirty ||
+                          (await confirmAction(
+                            "¿Abrir este ejemplo y descartar los cambios sin guardar?",
+                          ))
+                        ) {
+                          const current = useLab.getState().project;
+                          const content = structuredClone(p);
+                          content.id = current.id;
+                          content.name = current.name;
+                          content.createdAt = current.createdAt;
+                          content.modifiedAt = new Date().toISOString();
+                          if (!content.composition) {
+                            content.composition = createComposition();
+                            content.composition.layers.push({
+                              ...createLayer("effect", p.name),
+                              entry: content.entry,
+                            });
+                          }
+                          lab.load(content);
+                          useLab.setState({ dirty: true });
+                        }
+                      }}
+                    >
+                      <FileCode2 size={12} />
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              </details>
             </aside>
             <div
               role="separator"
@@ -365,7 +449,6 @@ export default function App() {
                   <Plus size={14} />
                   Archivo
                 </button>
-                <ImportAssets />
                 <button
                   aria-label="Cerrar código"
                   title="Cerrar código"
@@ -564,20 +647,6 @@ export default function App() {
               Asistente
             </button>
           </div>
-          <div className="effect-info">
-            <div className="effect-icon">
-              <Braces size={19} />
-            </div>
-            <div>
-              <strong>{lab.project.name}</strong>
-              <small>
-                Proyecto{" "}
-                {lab.project.profile === "html"
-                  ? "HTML / CSS / JavaScript"
-                  : "React / TypeScript"}
-              </small>
-            </div>
-          </div>
           {inspectorTab === "properties" ? (
             <Inspector />
           ) : (
@@ -587,6 +656,12 @@ export default function App() {
           )}
         </aside>
       </main>
+      {currentSave?.phase === "error" && (
+        <div className="save-error" role="alert">
+          No se pudo guardar: {currentSave.error}. Podés volver a intentarlo con
+          Guardar o Guardar como.
+        </div>
+      )}
       <footer className="statusbar">
         <button
           className="console-toggle"
@@ -612,7 +687,15 @@ export default function App() {
         </span>
         <span>{lab.project.files.length} archivos</span>
         <div className="grow" />
-        <span>{lab.dirty ? "Cambios sin guardar" : "Todo guardado"}</span>
+        <span
+          className="save-status"
+          role="status"
+          aria-live="polite"
+          aria-busy={saving}
+          title={saveMessage}
+        >
+          {saveMessage}
+        </span>
         <span>Code first. Always.</span>
       </footer>
       {settings && (
